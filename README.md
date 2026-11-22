@@ -14,7 +14,7 @@
   <a href="https://github.com/alonsa-93/moneycash/actions/workflows/ci.yml"><img src="https://github.com/alonsa-93/moneycash/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
 </p>
 
-<img src="docs/screenshots/c3-overview-light-1440.jpg" alt="MoneyCash overview" width="90%">
+<img src="docs/screenshots/readme-overview-light.jpg" alt="MoneyCash overview" width="90%">
 
 </div>
 
@@ -55,9 +55,11 @@
 
 | Overview (dark) | Transactions |
 |---|---|
-| ![Overview, dark theme](docs/screenshots/c3-overview-dark-1440.jpg) | ![Transactions](docs/screenshots/c3-transactions-light-1440.jpg) |
-| **Annual review** | |
-| ![Annual review](docs/screenshots/c3-annual-light-1440.jpg) | |
+| ![Overview, dark theme](docs/screenshots/readme-overview-dark.jpg) | ![Transactions](docs/screenshots/readme-transactions-light.jpg) |
+| **Recurring charges** | **Annual review** |
+| ![Recurring charges](docs/screenshots/readme-recurring-light.jpg) | ![Annual review](docs/screenshots/readme-annual-light.jpg) |
+| **Questions in Hebrew, answered locally** | **Business mode** |
+| ![Questions about your money](docs/screenshots/readme-chat-dark.jpg) | ![Business mode](docs/screenshots/readme-business-light.jpg) |
 
 ---
 
