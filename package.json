@@ -24,7 +24,7 @@
     "notices": "node scripts/notices.mjs"
   },
   "engines": {
-    "node": ">=22.22.2"
+    "node": ">=24"
   },
   "dependencies": {
     "express": "5.3.0",
