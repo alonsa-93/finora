@@ -1,0 +1,228 @@
+/* ---------- transactions: header + filter bar (fixed) over a scrolling glass sheet ----------
+   The page grid (--page-max, --page-x) like every other screen. The list is a real table with aligned
+   columns: merchant | category | account | (charge date) | amount, so a wide window fills the row with
+   facts the eye can scan down, instead of a gap between the name and the amount. When the sheet is
+   narrower than 760px (1100px window with the inspector, 200% zoom) the category and account fold into a
+   sub-line under the merchant (transactions.js measures the sheet). */
+.tx {
+  --tx-head-h: 40px;      /* sticky column header; the day headers stick right under it */
+  height: 100%; display: flex; flex-direction: column; min-height: 0;
+}
+.tx-top {
+  width: 100%; max-width: var(--page-max); margin-inline: auto;
+  padding: var(--page-top) var(--page-x) 0; display: grid; gap: 12px;
+}
+
+/* page header: title + period (the .page-title recipe), the figures as chips */
+.tx-head { display: flex; align-items: center; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; min-height: 62px; }
+.tx-count { font-variant-numeric: tabular-nums; }
+.tx-figs { display: flex; flex-wrap: wrap; gap: 10px; }
+.fig {
+  display: grid; grid-template-columns: auto auto; justify-content: space-between; align-content: center; column-gap: 10px; row-gap: 1px; min-width: 148px; padding: 8px 16px 7px;
+  border-radius: var(--r-4); background: var(--glass);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border: 1px solid var(--glass-border); box-shadow: 0 0 0 1px var(--glass-edge), 0 6px 18px -10px rgb(110 50 25 / 0.28);
+}
+.fig-k { display: inline-flex; align-items: center; gap: 7px; font-size: var(--t-xs); color: var(--ink-2); font-weight: 500; }
+.fig-k::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--ink-4); flex: none; }
+.f-out .fig-k::before { background: var(--series-out); }
+.f-in .fig-k::before { background: var(--series-in); }
+.f-net .fig-k::before { background: transparent; box-shadow: inset 0 0 0 2px var(--ink-2); }
+.f-back .fig-k::before { background: var(--series-in); }
+.fig-v { grid-column: 1 / -1; font-size: var(--t-xl); font-weight: 600; line-height: 1.25; }
+.f-in .fig-v, .f-net.pos .fig-v { color: var(--good); }
+.fig-n { grid-row: 1; grid-column: 2; align-self: center; font-size: var(--t-2xs); color: var(--ink-3); }
+.fig.f-main { background: linear-gradient(var(--coral-soft), var(--coral-soft)), var(--glass); box-shadow: 0 0 0 1px var(--coral-line), 0 6px 18px -10px rgb(160 45 25 / 0.35); }
+.sk-fig { gap: 8px; grid-template-columns: 1fr; }
+.sk-fig .sk { height: 10px; width: 60px; }
+.sk-fig .sk + .sk { height: 16px; width: 110px; }
+
+/* filter bar: glass pills on the backdrop, every control --ctl-h tall */
+.tx-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tx-bar .grow { flex: 1 0 0; }
+.tx-search { flex: 1 1 220px; max-width: 320px; min-width: 170px; }
+.tx-tools { display: inline-flex; align-items: center; gap: 6px; }
+
+.tx-active { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.chip-clear { display: inline-flex; align-items: center; margin-inline-start: 4px; }
+.small { font-size: var(--t-xs); }
+.small-link { font-size: var(--t-xs); }
+
+/* ---------- the sheet ---------- */
+.tx-sheet {
+  flex: 1; min-height: 0; overflow: auto;
+  width: calc(100% - 2 * var(--page-x)); max-width: calc(var(--page-max) - 2 * var(--page-x));
+  margin: var(--head-gap) auto 20px;
+  padding: 0 10px 10px;
+  border-radius: var(--r-panel);
+  background: var(--glass-strong);
+  -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-hi), 0 0 0 1px var(--glass-edge), var(--shadow-glass);
+  scroll-padding-top: calc(var(--tx-head-h) + 40px);
+}
+.tx-table { table-layout: fixed; }
+.tx-table col.k-cat { width: 24%; }
+.tx-table col.k-acc { width: 18%; }
+.tx-table col.k-proc { width: 12%; }
+.tx-table col.k-amt { width: 164px; }
+.tx-table thead th { position: sticky; top: 0; z-index: calc(var(--z-sticky) + 1); height: var(--tx-head-h); background: var(--glass-solid-strong); }
+.tx-table thead th.c-main { padding-inline-start: calc(12px + var(--av) + 12px); }   /* over the names, past the avatars */
+.tx-narrow .tx-table thead th.c-main { padding-inline-start: 12px; }
+
+/* day groups: a sticky header with the Hebrew date; that day's totals (from the server) sit in the
+   amount column, the number first so its shekel sign and decimals line up with the rows below and the
+   word ("יצא" / "נכנס") after it */
+.tx-table .day-row > * {
+  position: sticky; top: var(--tx-head-h); z-index: var(--z-sticky);
+  height: 40px; padding: 0 12px; background: var(--glass-solid-strong);
+  border-bottom: 1px solid var(--rule-strong); white-space: nowrap; vertical-align: middle;
+}
+.tx-table .day-group + .day-group .day-row > * { border-top: 10px solid var(--glass-solid-strong); height: 50px; }
+.tx-table .day-row:has(.ds-in):has(.ds-out) > * { height: 50px; }
+.tx-table .day-group + .day-group .day-row:has(.ds-in):has(.ds-out) > * { height: 60px; }
+.day-t { font-size: var(--t-sm); font-weight: 600; color: var(--ink); text-align: start; overflow: hidden; text-overflow: ellipsis; }
+.day-t strong { color: var(--coral); font-weight: 600; }
+.day-t .ds-n { font-weight: 400; font-size: var(--t-xs); color: var(--ink-3); margin-inline-start: 10px; }
+.day-s { font-size: var(--t-xs); color: var(--ink-2); overflow: visible !important; }
+.day-s > span { display: flex; align-items: baseline; gap: 6px; line-height: 1.35; }
+.day-s .ds-k { color: var(--ink-3); font-weight: 400; }
+.day-s .ds-in bdi { color: var(--good); }
+.day-s bdi { font-weight: 600; font-size: var(--t-sm); }
+
+/* rows: the shared row recipe (components.css) plus the transaction specifics */
+.tx-row { cursor: default; }
+.tx-row td { transition: background-color var(--dur) var(--ease-out); }
+.tx-m { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.tx-mt { display: grid; gap: 2px; min-width: 0; }
+.tx-l1 { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.tx-name { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; font-size: var(--t-md); line-height: 1.35; }
+.tx-sub { display: flex; align-items: center; gap: 6px; min-width: 0; overflow: hidden; white-space: nowrap; font-size: var(--t-xs); color: var(--ink-3); line-height: 1.4; }
+.tx-sub .mi { display: inline-flex; align-items: center; gap: 5px; min-width: 0; }
+.tx-sub .mi + .mi::before { content: "·"; color: var(--ink-4); margin-inline-end: 1px; }
+.tx-sub .dot { color: var(--ink-4); }
+.c-acc, .c-proc { color: var(--ink-2); font-size: var(--t-sm); overflow: hidden; text-overflow: ellipsis; }
+.c-cat .cat-btn { font-size: var(--t-sm); }
+.c-cat { overflow: hidden; }
+
+/* category: a quiet pill-button (click or C opens the picker); in the column it starts flush with the header */
+.tx-sub .mi-cat { margin-inline-start: -7px; }
+.c-cat .cat-btn { margin-inline-start: -8px; }
+.cat-btn {
+  display: inline-flex; align-items: center; gap: 7px; max-width: calc(100% + 8px);
+  height: 26px; padding-inline: 8px 6px;
+  border: 1px solid transparent; border-radius: var(--r-pill); cursor: pointer;
+  background: transparent; font-size: var(--t-xs); color: var(--ink-2); font-weight: 500;
+}
+.tx-sub .cat-btn { height: 22px; padding-inline: 7px 5px; }
+.cat-btn .swatch { width: 8px; height: 8px; }
+.cat-btn .cat-l { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cat-btn .caret { width: 11px; height: 11px; color: var(--ink-3); opacity: 0; flex: none; transition: opacity var(--dur) var(--ease-out); }
+.cat-btn:hover { border-color: var(--rule-strong); background: var(--glass-solid-strong); }
+.tx-row:hover .cat-btn .caret, .tx-row[aria-selected="true"] .cat-btn .caret { opacity: 1; }
+.tx-row[aria-selected="true"] .cat-btn { background: var(--glass-solid-strong); border-color: var(--rule); }
+
+/* amounts: right edges aligned, so the ₪ signs and the decimal points form one column */
+.c-amt { padding-inline: 12px 16px !important; }
+.amt-wrap { display: inline-grid; justify-items: start; gap: 1px; max-width: 100%; }
+.amt { font-size: var(--t-md); font-weight: 600; letter-spacing: 0; }
+.amt-sub { font-size: var(--t-2xs); color: var(--ink-3); white-space: nowrap; }
+.amt-sub .in-word { color: var(--good); font-weight: 600; }
+.tx-row[data-excluded="1"] .desc, .tx-row[data-excluded="1"] .amt { color: var(--ink-3); text-decoration: line-through; text-decoration-color: var(--ink-4); }
+.tx-row[data-cardpay="1"] .amt { color: var(--ink-3); }
+
+/* loading: skeleton rows in the real shape (the .sk-line recipe) */
+.sk-row td { height: var(--row-h); padding: 0; border-bottom: 0 !important; }
+
+.tx-foot { padding: 10px 0 4px; }
+.tx-more { display: flex; gap: 16px; align-items: center; justify-content: center; font-size: var(--t-sm); }
+.tx-end { display: flex; align-items: center; gap: 12px; font-size: var(--t-xs); color: var(--ink-3); padding: 8px 12px; }
+.tx-end::before, .tx-end::after { content: ""; flex: 1; height: 1px; background: var(--rule); }
+
+/* the tools collapse to icons (the label stays as the accessible name) */
+@media (max-width: 1640px) {
+  .tool-l { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .tool { padding: 0; width: var(--ctl-h); }
+}
+.frame:has(.inspector) .tool-l { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.frame:has(.inspector) .tool { padding: 0; width: var(--ctl-h); }
+.frame:has(.inspector) .tx { --page-x: 20px; }
+.frame:has(.inspector) .fig { min-width: 0; padding-inline: 12px; }
+.frame:has(.inspector) .fig-v { font-size: var(--t-lg); }
+@media (max-width: 1180px) {
+  .tx-search { max-width: 260px; }
+  .fig { min-width: 0; padding-inline: 13px; }
+  .fig-v { font-size: var(--t-lg); }
+}
+
+/* ---------- inspector ---------- */
+.insp-head.rich { height: auto; min-height: 54px; align-items: flex-start; gap: 12px; padding: 16px 12px 14px 18px; }
+.ih-t { flex: 1; min-width: 0; display: grid; gap: 3px; padding-top: 2px; }
+.ih-t h2 { font-size: var(--t-lg); font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+.ih-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: var(--t-xs); color: var(--ink-3); }
+.ih-sub .dot { color: var(--ink-4); }
+
+.insp-amount {
+  display: grid; gap: 4px; justify-items: start; padding: 14px 16px 16px;
+  border-radius: var(--r-4); background: var(--card-in); border: 1px solid var(--rule);
+}
+.ia-k { font-size: var(--t-xs); color: var(--ink-2); font-weight: 500; }
+.ia-v { font-size: 30px; font-weight: 600; line-height: 1.15; }
+.ia-fx { font-size: var(--t-xs); color: var(--ink-3); }
+.insp-amount .badges { margin-top: 6px; flex-wrap: wrap; }
+.insp-sec { display: grid; gap: 8px; }
+.insp-h { font-size: var(--t-xs); color: var(--ink-3); font-weight: 600; }
+.insp-cat {
+  display: grid; grid-template-columns: 12px minmax(0, 1fr) auto 14px; align-items: center; gap: 10px;
+  width: 100%; min-height: 50px; padding: 7px 12px 7px 10px;
+  border-radius: var(--r-3); border: 1px solid var(--rule-strong); background: var(--field-bg);
+  text-align: start; color: var(--ink); cursor: pointer;
+}
+.insp-cat:hover { border-color: var(--field-border); background: var(--glass-solid-strong); }
+.insp-cat .ic-l { display: grid; min-width: 0; }
+.insp-cat .ic-name { font-size: var(--t-sm); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.insp-cat .ic-src { font-size: var(--t-2xs); color: var(--ink-3); }
+.insp-cat .caret { width: 14px; height: 14px; color: var(--ink-3); }
+.insp-dl { display: grid; }
+.dl-row { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--rule); font-size: var(--t-sm); }
+.dl-row:last-child { border-bottom: 0; }
+.insp-dl dt { color: var(--ink-3); }
+.insp-dl dd { color: var(--ink); overflow-wrap: anywhere; }
+.insp-switch { display: grid; gap: 4px; padding: 12px 14px; border-radius: var(--r-3); background: var(--sunken); }
+.insp-switch .switch { justify-content: space-between; }
+.insp-switch .sw-l { font-weight: 500; color: var(--ink); }
+.insp-actions { display: grid; gap: 2px; padding-top: 10px; border-top: 1px solid var(--rule); }
+.insp-act {
+  display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; align-items: center; gap: 10px;
+  min-height: 38px; padding-inline: 10px; border: 0; border-radius: var(--r-2); background: transparent;
+  text-align: start; font-size: var(--t-sm); color: var(--ink); cursor: pointer;
+}
+.insp-act:hover { background: var(--item-hover); }
+.insp-act .ico { color: var(--ink-2); }
+
+/* ---------- popovers used here ---------- */
+.cat-menu { width: 290px; }
+.range-pop { width: 352px; }
+.pop-title { font-size: var(--t-md); font-weight: 600; }
+.range-presets { display: flex; flex-wrap: wrap; gap: 6px; }
+.pop-actions { display: flex; gap: 8px; }
+.popover .error-text:empty { display: none; }
+
+/* ---------- compact header when the column is narrow (1100px window + inspector, 200% zoom) ---------- */
+.tx-top { container-type: inline-size; container-name: txtop; }
+@container txtop (max-width: 860px) {
+  .tx-head { align-items: center; gap: 10px 16px; }
+  .tx-figs { gap: 6px; }
+  .fig { grid-template-columns: auto auto; align-items: baseline; column-gap: 8px; min-width: 0; padding: 6px 12px; border-radius: var(--r-3); }
+  .fig-v { grid-column: auto; font-size: var(--t-md); }
+  .fig-n { display: none; }
+  .tx-bar { gap: 6px; }
+  .tx-search { flex: 1 1 160px; min-width: 150px; }
+  .tx-search kbd { display: none; }
+  .combo { max-width: 160px; padding-inline: 10px 8px; gap: 6px; }
+  .seg label { padding-inline: 10px; }
+}
+.tx-figs.stale, .tx-table.stale tbody { opacity: .55; transition: opacity 120ms var(--ease-out) 150ms; }
+.frame:has(.inspector) .tx-search { flex: 1 1 170px; max-width: 220px; }
+.tx-top-btn[aria-pressed="true"] { background: var(--coral-soft); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--coral-line); font-weight: 600; }
+@media (forced-colors: active) { .tx-top-btn[aria-pressed="true"] { outline: 2px solid Highlight; } }

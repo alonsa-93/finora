@@ -1,0 +1,117 @@
+/* The overview's first screen: where do I stand (views/position.js). */
+.pos { display: grid; gap: var(--gap); }
+
+/* 1 + 2: the bank (coral hero) and the cards (glass) side by side */
+.pos-now { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: var(--gap); align-items: stretch; }
+.pos-card { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
+.pos-bank.hero.calm { display: flex; padding: 24px 30px; }
+.pos-bank .hero-label { margin-top: 0; padding-top: 14px; }
+.pos-bank .hero-figure.neg { text-decoration: underline 2px; text-underline-offset: 6px; }
+.pos-tag { display: inline-flex; align-items: center; gap: 8px; font-size: var(--t-xs); font-weight: 500; color: var(--ink-2); }
+.pos-tag .ico { width: 16px; height: 16px; color: var(--coral); }
+.pos-label { padding-top: 14px; font-size: var(--t-lg); font-weight: 500; color: var(--ink-2); }
+.pos-figure { font-size: var(--t-3xl); font-weight: 600; line-height: 1.05; letter-spacing: -0.01em; margin-top: 4px; }
+.pos-none { margin-top: 10px; color: var(--ink-3); }
+.pos-bank .pos-none { color: var(--on-coral-2); }
+
+.pos-facts { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 8px; width: min(100%, 460px); }
+.pos-facts li { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: var(--t-sm); line-height: 1.45; }
+.pos-facts li > span:first-child { color: var(--ink-2); }
+.pos-facts li > .num, .pos-facts .pos-pair { font-weight: 600; white-space: nowrap; }
+.pos-cards .pos-facts li.bad > .num, .pos-cards .pos-facts li.bad .pos-pair .num:first-child { color: var(--alert); }
+.pos-cards .pos-facts li.good .pos-pair .num:first-child { color: var(--good); }
+.pos-sep { color: var(--ink-3); font-weight: 400; }
+.pos-bank .pos-facts li > span:first-child { color: var(--on-coral-2); }
+.pos-bank .pos-facts li.bad { padding: 6px 10px; margin-inline: -10px; border-radius: 10px; background: rgb(80 0 0 / 0.22); box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / 0.55); }
+.pos-bank .pos-facts li.bad > span:first-child { color: var(--on-coral); font-weight: 600; }
+
+.pos-list { list-style: none; margin: 14px 0 0; padding: 12px 0 0; display: grid; gap: 6px; width: min(100%, 460px); border-top: 1px solid var(--rule); font-size: var(--t-sm); }
+.pos-bank .pos-list { border-top-color: rgb(255 255 255 / 0.28); }
+.pos-list li { display: flex; align-items: center; gap: 8px; }
+.pos-list li bdi:not(.num) { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pos-key { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+
+/* card colours: shared by the chart, its legend and the card list */
+.pos-key.c0, .legend .kc0, .cro-key.c0 { background: var(--series-out); }
+.pos-key.c1, .legend .kc1, .cro-key.c1 { background: var(--series-prev); }
+.pos-key.c2, .legend .kc2, .cro-key.c2 { background: var(--series-in); }
+.pos-key.c3, .legend .kc3, .cro-key.c3 { background: var(--dch-3); }
+.legend .kc0, .legend .kc1, .legend .kc2, .legend .kc3 { width: 10px; height: 10px; border: 0; border-radius: 3px; }
+.legend .k-avg { width: 16px; height: 0; border-top: 2px dashed var(--ink-3); }
+.chart .bar-card.c0 { fill: var(--series-out); }
+.chart .bar-card.c1 { fill: var(--series-prev); }
+.chart .bar-card.c2 { fill: var(--series-in); }
+.chart .bar-card.c3 { fill: var(--dch-3); }
+.chart .bar-card.partial { opacity: .62; }
+
+/* card chart readout: line 1 the month, total and the gap from a normal month; line 2 one chip per card.
+   Fixed height, so hovering or arrowing across months never moves the page. */
+.cro { display: grid; gap: 6px; height: 52px; min-height: 52px; margin-bottom: 6px; overflow: hidden; }
+.cro-main { display: flex; align-items: baseline; gap: 10px; white-space: nowrap; min-width: 0; }
+.cro-month { font-size: var(--t-sm); font-weight: 600; color: var(--ink); }
+.cro-total { font-size: var(--t-md); font-weight: 700; color: var(--ink); }
+.cro-vs { font-size: var(--t-xs); font-weight: 600; padding: 1px 8px; border-radius: var(--r-pill); overflow: hidden; text-overflow: ellipsis; }
+.cro-vs.up { background: var(--warn-soft); color: var(--warn); }
+.cro-vs.down { background: var(--good-soft); color: var(--good); }
+.cro-parts { list-style: none; margin: 0; padding: 0; display: flex; gap: 6px 14px; flex-wrap: nowrap; overflow: hidden; font-size: var(--t-xs); color: var(--ink-2); min-width: 0; }
+.cro-parts li { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; flex: none; }
+.cro-parts .num { font-weight: 600; color: var(--ink); }
+.cro-key { width: 9px; height: 9px; border-radius: 3px; flex: none; }
+.chart .avg-line { stroke: var(--ink-3); stroke-width: 1.5; stroke-dasharray: 5 4; }
+
+/* 3: trends */
+.pos-trends-wrap { display: grid; gap: 10px; }
+.pos-trends-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.pos-trends-head h2 { font-size: var(--t-h2); font-weight: 600; }
+.pos-trends-head .sub { color: var(--ink-3); font-size: var(--t-sm); }
+.pos-trends-head .grow { flex: 1; }
+.pos-pick { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip-btn {
+  display: inline-flex; align-items: center; gap: 6px; height: 32px; padding-inline: 12px; border: 0; border-radius: var(--r-pill);
+  background: var(--glass); box-shadow: inset 0 0 0 1px var(--glass-edge); color: var(--ink-2); font: inherit; font-size: var(--t-sm); cursor: pointer;
+}
+.chip-btn .ico { width: 15px; height: 15px; }
+.chip-btn:hover { background: var(--glass-strong); color: var(--ink); }
+.chip-btn.on { background: var(--coral-soft); color: var(--coral-ink); box-shadow: inset 0 0 0 1.5px var(--coral-line); font-weight: 600; }
+.chip-btn:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: 2px; }
+.pos-chart .panel-head { flex-wrap: wrap; row-gap: 6px; }
+.pos-chart .legend { flex-wrap: wrap; row-gap: 4px; }
+.pos-trends { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap); align-items: start; }
+
+/* 4: red flags */
+.flag-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.flag { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 4px 12px; align-items: start; padding: 12px 14px; border-radius: 16px; background: var(--glass); box-shadow: inset 0 0 0 1px var(--glass-edge); }
+.flag[data-sev="alert"] { background: var(--alert-soft); box-shadow: inset 3px 0 0 var(--alert), inset 0 0 0 1px var(--glass-edge); }
+.flag[data-sev="warning"] { background: var(--warn-soft); box-shadow: inset 3px 0 0 var(--warn), inset 0 0 0 1px var(--glass-edge); }
+.flag h3 { font-size: var(--t-md); font-weight: 600; line-height: 1.4; }
+.flag p { margin-top: 4px; font-size: var(--t-sm); line-height: 1.55; color: var(--ink-2); }
+.flag .flag-tip { color: var(--ink); }
+.flag .flag-tip strong { font-weight: 600; }
+.flag-go { align-self: center; white-space: nowrap; }
+.flag-more { margin-top: 12px; }
+.flag-more summary { cursor: pointer; font-size: var(--t-sm); color: var(--coral); font-weight: 500; padding: 6px 0; }
+.flag-more .flag-list { margin-top: 8px; }
+
+/* the spending part under "לעומק": its own heading and period */
+.ov-deep-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ov-deep-title { font-size: var(--t-h2); font-weight: 600; display: flex; align-items: baseline; gap: 10px; }
+.ov-deep-title .sub { color: var(--ink-3); font-size: var(--t-sm); font-weight: 400; }
+.ov-deep-head .grow { flex: 1; }
+
+@media (max-width: 1100px) {
+  .pos-trends { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  .pos-now { grid-template-columns: minmax(0, 1fr); }
+  .pos-bank.hero.calm { padding: 20px; }
+  .flag { grid-template-columns: minmax(0, 1fr); }
+  .flag-go { justify-self: start; }
+}
+@media (forced-colors: active) {
+  .pos-key, .legend .kc0, .legend .kc1, .legend .kc2, .legend .kc3 { forced-color-adjust: none; border: 1px solid CanvasText; }
+  .chart .bar-card { fill: Highlight; stroke: Canvas; }
+  .chart .avg-line { stroke: CanvasText; }
+  .chip-btn.on { outline: 2px solid Highlight; }
+}
+.pos.is-loading { opacity: .55; transition: opacity var(--dur, .2s); }
+@media (prefers-reduced-motion: reduce) { .pos.is-loading { transition: none; } }

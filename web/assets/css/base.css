@@ -1,0 +1,294 @@
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; }
+body {
+  font-family: var(--font);
+  font-size: var(--t-md);
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--bd-base);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  user-select: none;            /* desktop program: text is selectable only where it is content */
+  cursor: default;
+}
+
+/* ---------- the backdrop: layered light, then a fine photographic grain ---------- */
+body::before, body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -1; }
+body::before {
+  background:
+    radial-gradient(52% 58% at 88% 4%, var(--bd-1) 0%, transparent 62%),
+    radial-gradient(46% 52% at 6% 14%, var(--bd-2) 0%, transparent 66%),
+    radial-gradient(58% 48% at 34% 100%, var(--bd-3) 0%, transparent 70%),
+    radial-gradient(42% 46% at 100% 88%, var(--bd-4) 0%, transparent 70%),
+    radial-gradient(34% 30% at 56% 42%, var(--bd-5) 0%, transparent 72%),
+    linear-gradient(160deg, var(--bd-lin-1) 0%, var(--bd-lin-2) 55%, var(--bd-lin-3) 100%);
+}
+body::after { background: url("../img/grain.svg") repeat; opacity: var(--grain-opacity); mix-blend-mode: var(--grain-blend); }
+
+h1, h2, h3, h4, p, ul, ol, dl, dd, figure { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+h1, h2, h3, h4 { font-weight: 600; font-style: normal; letter-spacing: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--ink); text-decoration-color: var(--accent-line); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+svg { display: block; }
+[hidden] { display: none !important; }
+::selection { background: var(--coral-soft); color: var(--ink); }
+
+.selectable, input, textarea, td, .ins-body, .inspector dd { user-select: text; }
+
+:focus { outline: none; }
+:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: var(--focus-gap); }
+/* outlines follow each element's own border-radius (pills stay pills); bare text links get a soft corner */
+a:not([class]):focus-visible, button.link:focus-visible { border-radius: var(--r-1); }
+/* table rows: a rounded ring drawn on the cells (an outline on <tr> is a square box and clashes) */
+tr[tabindex]:focus-visible { outline: none; }
+tr[tabindex]:focus-visible > :is(td, th) { box-shadow: inset 0 var(--focus-w) 0 var(--focus), inset 0 calc(-1 * var(--focus-w)) 0 var(--focus); }
+tr[tabindex]:focus-visible > :is(td, th):first-child { box-shadow: inset 0 var(--focus-w) 0 var(--focus), inset 0 calc(-1 * var(--focus-w)) 0 var(--focus), inset calc(-1 * var(--focus-w)) 0 0 var(--focus); border-start-start-radius: var(--row-r); border-end-start-radius: var(--row-r); }
+tr[tabindex]:focus-visible > :is(td, th):last-child { box-shadow: inset 0 var(--focus-w) 0 var(--focus), inset 0 calc(-1 * var(--focus-w)) 0 var(--focus), inset var(--focus-w) 0 0 var(--focus); border-start-end-radius: var(--row-r); border-end-end-radius: var(--row-r); }
+
+.sr-only {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.muted { color: var(--ink-3); }
+.empty-line { color: var(--ink-2); font-size: var(--t-sm); padding: 10px 0; }
+
+/* numbers: Rubik's tabular figures, isolated LTR */
+.num, bdi.num { font-variant-numeric: tabular-nums lining-nums; font-feature-settings: "tnum" 1; unicode-bidi: isolate; direction: ltr; white-space: nowrap; }
+td, .amt-r, .amt { font-variant-numeric: tabular-nums; }
+
+/* ---------- glass surfaces ---------- */
+.glass, .panel {
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-panel);
+  box-shadow: var(--glass-hi), 0 0 0 1px var(--glass-edge), var(--shadow-glass);
+}
+/* no backdrop-filter, or the person asked for less transparency: opaque panels, same layout */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root { --glass: var(--glass-solid); --glass-strong: var(--glass-solid-strong); --glass-thin: var(--glass-solid); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root { --glass: var(--glass-solid); --glass-strong: var(--glass-solid-strong); --glass-thin: var(--glass-solid); --rail-bg: #2e1c17; }
+  :root[data-theme="dark"] { --rail-bg: #160e12; }
+  body::after { display: none; }
+}
+
+kbd {
+  font: 500 var(--t-2xs)/1 var(--font);
+  color: var(--ink-3);
+  border: 1px solid var(--rule-strong);
+  border-bottom-width: 2px;
+  border-radius: var(--r-1);
+  padding: 2px 5px;
+  background: var(--field-bg);
+  white-space: nowrap;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+* { scrollbar-width: thin; scrollbar-color: var(--rule-strong) transparent; }
+
+/* ---------- buttons: pills. One recipe each (see docs/DESIGN.md "Controls"):
+   secondary = .btn (glass pill) · primary = .btn.primary (coral) · ghost = .btn.ghost (no surface)
+   danger = .btn.danger (red text on secondary or ghost) · .btn.danger.solid (the final destructive confirm)
+   sizes: --ctl-h (36) default, .small = --ctl-h-sm (30) ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--s1);
+  height: var(--ctl-h); padding-inline: 16px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-pill);
+  background: var(--glass-thin);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  box-shadow: 0 0 0 1px var(--glass-edge), 0 1px 2px rgb(0 0 0 / 0.05);
+  color: var(--ink);
+  font-size: var(--t-sm); font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out), transform var(--dur) var(--ease-out);
+}
+.btn:hover { background: var(--glass-strong); }
+.btn:active { transform: translateY(1px); background: var(--glass); }
+.btn:disabled, .btn[aria-disabled="true"] { color: var(--ink-3); background: var(--sunken); box-shadow: none; cursor: default; transform: none; }
+.btn.primary { background: var(--coral-pill); color: var(--on-coral); border-color: transparent; box-shadow: var(--coral-glow); }
+.btn.primary:hover { filter: brightness(1.06); }
+.btn.danger { color: var(--alert); }
+.btn.danger.solid { background: var(--alert); color: var(--glass-solid-strong); border-color: transparent; }
+:root[data-theme="dark"] .btn.danger.solid { color: #2a120c; }
+.btn.danger.solid:disabled, .btn.primary:disabled { background: var(--sunken); color: var(--ink-3); box-shadow: inset 0 0 0 1px var(--rule-strong); filter: none; }
+.btn.ghost { border-color: transparent; background: transparent; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.btn.ghost:hover { background: var(--hover); }
+.btn.ghost:disabled { background: transparent; }
+.btn.danger:not(.solid):hover { background: var(--alert-soft); }
+/* accent: a secondary in coral, for the one action of a card (an insight's "הצג תנועות") */
+.btn.accent { color: var(--coral); background: transparent; border-color: transparent; box-shadow: inset 0 0 0 1px var(--coral-line); -webkit-backdrop-filter: none; backdrop-filter: none; font-weight: 600; }
+.btn.accent:hover { background: var(--coral-soft); }
+.btn.small { height: var(--ctl-h-sm); padding-inline: 12px; font-size: var(--t-xs); }
+.btn.icon { width: var(--ctl-h); padding: 0; }
+.btn.small.icon { width: var(--ctl-h-sm); }
+.btn .ico { width: 16px; height: 16px; flex: none; }
+.btn[aria-busy="true"] { color: var(--ink-3); }
+
+.link {
+  background: none; border: 0; padding: 0; color: var(--ink); font-weight: 500; font-size: inherit;
+  text-decoration: underline; text-decoration-color: var(--accent-line); text-decoration-thickness: 2px; text-underline-offset: 4px;
+  cursor: pointer;
+}
+.link:hover { text-decoration-color: var(--coral); color: var(--coral); }
+
+.icon-btn {
+  display: inline-grid; place-items: center; width: var(--ctl-h-sm); height: var(--ctl-h-sm); flex: none;
+  border: 0; background: transparent; border-radius: var(--r-pill); color: var(--ink-2); cursor: pointer;
+}
+.icon-btn:hover { background: var(--hover); color: var(--ink); }
+.icon-btn:disabled { color: var(--ink-4); background: transparent; cursor: default; }
+.icon-btn .ico { width: 16px; height: 16px; }
+
+.ico { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.ico-dir { transform: scaleX(-1); } /* directional glyphs drawn LTR, mirrored for RTL */
+
+/* ---------- form fields: one text-field recipe (.input), one search recipe (.pill-field),
+   one password recipe (.input-group with a show/hide button inside the field) ---------- */
+.field { display: grid; gap: 6px; }
+.field > label, .field-label { font-size: var(--t-sm); color: var(--ink-2); font-weight: 500; }
+.input, .input-group {
+  height: var(--ctl-h); padding-inline: 12px;
+  border: 1px solid var(--field-border); border-radius: var(--r-2);
+  background: var(--field-bg); color: var(--ink);
+  font-size: var(--t-sm);
+  min-width: 0;
+  transition: border-color var(--dur) var(--ease-out), background-color var(--dur) var(--ease-out);
+}
+.input:hover, .input-group:hover { border-color: var(--ink-2); }
+.input:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: -1px; border-color: transparent; }
+.input[aria-invalid="true"], .input-group:has(input[aria-invalid="true"]) { border-color: var(--alert); }
+.input::placeholder { color: var(--ink-3); }
+.input:disabled { color: var(--ink-3); background: var(--sunken); border-color: var(--rule-strong); }
+/* a field with a button inside it (password show/hide): the wrapper is the field, the input is bare */
+.input-group { display: flex; align-items: center; gap: 4px; padding-inline: 12px 3px; }
+.input-group > input { flex: 1; min-width: 0; height: 100%; border: 0; background: transparent; padding: 0; color: var(--ink); font-size: var(--t-sm); }
+.input-group > input:focus-visible { outline: none; }
+.input-group:focus-within { outline: var(--focus-w) solid var(--focus); outline-offset: -1px; border-color: transparent; }
+.input-group > .icon-btn { width: 30px; height: 30px; }
+.hint { font-size: var(--t-xs); color: var(--ink-3); }
+.error-text { font-size: var(--t-sm); color: var(--alert); }
+.error-text:empty { display: none; }
+
+/* checkbox and radio: drawn, not the OS widget. Box = 18px, rounded 5px; on = ink fill with a check
+   (same neutral "on" as the switch); radio = ring with a dot. Shape carries the state, not colour. */
+.check { display: inline-flex; align-items: center; gap: 10px; font-size: var(--t-sm); cursor: pointer; }
+.check input {
+  appearance: none; flex: none; width: 18px; height: 18px; margin: 0; position: relative; cursor: pointer;
+  border: 1.5px solid var(--field-border); border-radius: 5px; background: var(--field-bg);
+  transition: background-color var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out);
+}
+.check input:hover { border-color: var(--ink-2); }
+.check input:checked { background: var(--switch-on); border-color: var(--switch-on); }
+.check input[type="checkbox"]:checked::after {
+  content: ""; position: absolute; left: 5px; top: 1.5px; width: 5px; height: 9px;
+  border: solid var(--switch-knob); border-width: 0 2px 2px 0; rotate: 45deg;
+}
+.check input[type="radio"] { border-radius: 50%; }
+.check input[type="radio"]:checked { background: var(--field-bg); border-color: var(--switch-on); }
+.check input[type="radio"]:checked::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: var(--switch-on); }
+.check input:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: var(--focus-gap); }
+
+/* toggle switch */
+.switch { display: inline-flex; align-items: center; gap: var(--s2); font-size: var(--t-sm); cursor: pointer; }
+.switch input {
+  appearance: none; width: 40px; height: 24px; margin: 0; border-radius: var(--r-pill);
+  border: 1px solid var(--field-border); background: var(--field-bg); position: relative; flex: none; cursor: pointer;
+  transition: background-color var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out);
+}
+/* the knob: a hollow ring at the start when off, a filled knob at the end when on (shape + position, not colour alone) */
+.switch input::after {
+  content: ""; position: absolute; top: 3px; inset-inline-start: 3px;
+  width: 16px; height: 16px; border-radius: 50%; box-sizing: border-box;
+  border: 2px solid var(--ink-3); background: transparent;
+  transition: inset-inline-start var(--dur) var(--ease-out), background-color var(--dur) var(--ease-out);
+}
+.switch input:checked { background: var(--switch-on); border-color: var(--switch-on); }
+.switch input:checked::after {
+  inset-inline-start: 19px; border: 0; background: var(--switch-knob);
+}
+.switch input:focus-visible { outline: var(--focus-w) solid var(--focus); outline-offset: var(--focus-gap); }
+
+/* segmented control (radio group): a pill track with a glass thumb */
+/* also the recipe for tabs (annual): same track, same glass thumb */
+.seg { display: inline-flex; padding: 3px; gap: 2px; border-radius: var(--r-pill); background: var(--sunken); box-shadow: inset 0 0 0 1px var(--rule); height: var(--ctl-h); flex: none; }
+.seg label { display: grid; place-items: center; padding-inline: 14px; font-size: var(--t-sm); color: var(--ink-2); position: relative; border-radius: var(--r-pill); cursor: pointer; white-space: nowrap; }
+.seg label:hover { color: var(--ink); }
+.seg input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.seg label:has(input:checked) { background: var(--glass-strong); color: var(--ink); font-weight: 600; box-shadow: 0 1px 3px rgb(80 30 10 / 0.14), 0 0 0 1px var(--glass-edge); }
+.seg label:has(input:focus-visible) { outline: 2px solid var(--focus); outline-offset: 1px; }
+
+/* skeleton */
+.sk { background: var(--track); border-radius: var(--r-2); min-height: 12px; }
+@media (prefers-reduced-motion: no-preference) {
+  .sk { animation: sk 1.4s ease-in-out infinite; }
+  @keyframes sk { 50% { opacity: .55; } }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0ms !important; animation-duration: 0ms !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn:active { transform: none; }
+}
+
+/* ---- Windows High Contrast / forced colours ------------------------------------------------------
+   The system palette replaces our colours: glass becomes Canvas, so every panel, card, layer, ring,
+   bar and chart mark gets an explicit system-colour edge or fill to stay visible. */
+@media (forced-colors: active) {
+  :root { --blur: none; --blur-strong: none; }
+  body::before, body::after { display: none; }
+  .panel, .hero, .kpi, .cal, .dialog, .menu, .palette, .inspector, .toast, .titlebar, .sidebar, .tb-cmd,
+  .an-tabs, .rc-summary > div, .notice, .chip, .hero-stat, .onb, .trust, .wipe-body, .rcal-box, .row-btn[aria-pressed="true"] {
+    border: 1px solid CanvasText;
+  }
+  .layer-scrim { background: transparent; }
+  :focus-visible, .input:focus-visible, .select:focus-visible { outline: 3px solid Highlight !important; outline-offset: 2px; }
+  [aria-current="page"], [aria-selected="true"], [aria-pressed="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
+  /* data marks: keep them painted, in system colours */
+  .meter, .mer-bar, .rc-bar, .an-bm-bar, .an-plan-prog, .cat-bar { forced-color-adjust: none; background: Canvas; border: 1px solid CanvasText; }
+  .meter span, .mer-bar span, .rc-bar span, .an-bm-bar span, .an-plan-prog > span, .cat-bar .fill { forced-color-adjust: none; background: Highlight !important; }
+  .cat-bar .avg { forced-color-adjust: none; background: CanvasText; }
+  .swatch, .cd-dot, .sb-dot { forced-color-adjust: none; background: CanvasText !important; box-shadow: none; }
+  .chart svg, .spark svg, .ring-svg { forced-color-adjust: none; }
+  .chart .tick, .chart text { fill: CanvasText; }
+  .chart .line-now, .chart .price-line, .spark .sp-line, .chart .line-forecast { stroke: Highlight; }
+  .chart .line-prev, .spark .sp-zero, .chart .hover-rule, .chart .cp-rule { stroke: CanvasText; }
+  .chart .bar-in { fill: Highlight; }
+  .chart .bar-out, .chart .bar-out.over { fill: CanvasText; }
+  .chart .area-now, .spark .sp-area, .chart .fc-range, .chart .band { fill: none; }
+  .chart .dot-now, .chart .price-dot, .spark .sp-dot { fill: Highlight; stroke: Canvas; }
+  .spark .sp-focus, .chart .price-focus { stroke: CanvasText; }
+  .ring-track { fill: none; stroke: GrayText; }
+  .ring-arc { stroke: Highlight; filter: none; }
+  .spark-read { forced-color-adjust: none; background: Canvas; color: CanvasText; border: 1px solid CanvasText; }
+}
+/* less transparency also means no blur work behind the (now opaque) panels */
+@media (prefers-reduced-transparency: reduce) {
+  :root { --blur: none; --blur-strong: none; }
+  .layer-scrim { -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+
+/* ---- target size (WCAG 2.5.8: at least 24 x 24 CSS px) and a visible skip link ---------------- */
+button.link { min-height: 24px; }
+.check, .switch { min-height: 24px; }
+.sort-btn { min-height: 24px; }
+.chip button { width: 24px; height: 24px; }
+a.sr-only:focus-visible {
+  position: fixed !important; z-index: var(--z-skip); inset-block-start: 6px; inset-inline-start: 50%; transform: translateX(50%);
+  width: auto; height: auto; padding: 8px 16px; margin: 0; clip: auto; overflow: visible;
+  background: var(--glass-solid-strong); color: var(--ink); border-radius: var(--r-pill); box-shadow: var(--shadow-float);
+}
+@media (forced-colors: active) {
+  .switch input:checked { background: Highlight; border-color: Highlight; }
+  .switch input:checked::after { background: Canvas; }
+  .combo, .pill-field, .fig, .badge, .cat-btn, .insp-cat, .tooltip, .popover { border: 1px solid CanvasText; }
+  .combo[data-set="1"], .tx-row[aria-selected="true"] td { outline: 2px solid Highlight; outline-offset: -2px; }
+  .av { forced-color-adjust: none; background: Canvas; color: CanvasText; box-shadow: inset 0 0 0 1px CanvasText; }
+}

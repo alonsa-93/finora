@@ -1,0 +1,258 @@
+/* MoneyCash · direction: Warm Glass (see docs/DESIGN.md)
+ * Rubik (variable, Hebrew + Latin) · frosted panels over a warm, softly blurred backdrop ·
+ * signature: one coral surface (the month's hero card) and a coral glow on whatever is current.
+ * Every colour below is a named token; components never inline raw values. */
+
+@font-face { font-family: "Rubik"; src: url("../fonts/rubik-hebrew-var.woff2") format("woff2"); font-weight: 300 900; font-display: block; unicode-range: U+0307-0308, U+0590-05FF, U+200C-2010, U+20AA, U+25CC, U+FB1D-FB4F; }
+@font-face { font-family: "Rubik"; src: url("../fonts/rubik-latin-var.woff2") format("woff2"); font-weight: 300 900; font-display: block; unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2190-21FF, U+2212, U+2215, U+FEFF, U+FFFD; }
+
+:root {
+  color-scheme: light;
+  --font: "Rubik", "Segoe UI", system-ui, sans-serif;
+
+  /* ---- backdrop: warm peach room light, blurred like an out-of-focus photo ---- */
+  --bd-base:   #f2dccd;
+  --bd-1:      rgb(255 244 233 / 0.95);   /* window light, top start */
+  --bd-2:      rgb(226 128 92 / 0.55);    /* terracotta, top end */
+  --bd-3:      rgb(242 168 118 / 0.60);   /* apricot, bottom */
+  --bd-4:      rgb(208 120 112 / 0.38);   /* dusty rose, bottom start */
+  --bd-5:      rgb(255 236 222 / 0.75);   /* soft centre light */
+  --bd-lin-1:  #f7e9de;
+  --bd-lin-2:  #eed2c0;
+  --bd-lin-3:  #e6bfa9;
+  --grain-opacity: 0.22;
+  --grain-blend: multiply;
+
+  /* ---- glass ---- */
+  --glass:          rgb(255 250 246 / 0.80);   /* panels: opaque enough for AA everywhere */
+  --glass-strong:   rgb(255 251 248 / 0.93);   /* tables, menus, dialogs, inspector */
+  --glass-thin:     rgb(255 250 246 / 0.55);   /* chips and pills sitting on the backdrop */
+  --glass-solid:    #fbf1ea;                   /* fallback: no backdrop-filter / reduced transparency */
+  --glass-solid-strong: #fdf7f2;
+  --glass-border:   rgb(255 255 255 / 0.78);
+  --glass-edge:     rgb(122 66 40 / 0.13);
+  --glass-hi:       inset 0 1px 0 rgb(255 255 255 / 0.95), inset 0 0 0 1px rgb(255 255 255 / 0.35);
+  --shadow-glass:   0 1px 1px rgb(110 50 25 / 0.05), 0 2px 8px -2px rgb(110 50 25 / 0.08), 0 14px 34px -12px rgb(110 50 25 / 0.24);
+  --shadow-lift:    0 1px 1px rgb(110 50 25 / 0.05), 0 4px 12px -2px rgb(110 50 25 / 0.10), 0 22px 44px -14px rgb(110 50 25 / 0.32);
+  --shadow-float:   0 2px 6px rgb(90 40 20 / 0.10), 0 24px 60px -12px rgb(90 40 20 / 0.34);
+  --blur:           blur(22px) saturate(1.35);
+  --blur-strong:    blur(30px) saturate(1.4);
+
+  /* ---- ink ---- */
+  --ink:          #2b1b15;
+  --ink-2:        #5a3f34;
+  --ink-3:        #6f5145;
+  --ink-4:        #b39586;   /* non-text: guides, disabled borders */
+  --rule:         rgb(122 66 40 / 0.12);
+  --rule-strong:  rgb(122 66 40 / 0.24);
+  --field-border: #9b7a68;   /* ≥3:1 against the panel */
+  --field-bg:     rgb(255 255 255 / 0.72);
+  --hover:        rgb(122 66 40 / 0.07);
+  --press:        rgb(122 66 40 / 0.12);
+  --track:        rgb(122 66 40 / 0.10);
+  --sunken:       rgb(122 66 40 / 0.06);
+  --card-in:      rgb(255 255 255 / 0.52);   /* a card inside a panel (top conclusions) */
+  --sev-knock:    #fff8f3;                   /* the cut-out inside the alert octagon */
+
+  /* ---- coral: the one accent ---- */
+  --coral:        #b8402c;   /* text / interactive on glass (5.0:1 on the panel) */
+  --coral-bright: #e8704f;   /* non-text: glows, lines, dots */
+  --coral-soft:   rgb(232 112 79 / 0.14);
+  --coral-ink:    #9c3124;   /* coral text sitting on a coral-soft tint */
+  --coral-line:   rgb(232 112 79 / 0.65);
+  --on-coral:     #ffffff;
+  --on-coral-2:   #fff1ea;   /* secondary text on coral, opaque so its contrast is predictable */
+  /* the glows sit in the corners away from the text (top-left, bottom-left); the text side stays deep enough for AA */
+  --coral-hero:   radial-gradient(42% 46% at 0% 0%, rgb(246 150 104 / 0.70) 0%, rgb(246 150 104 / 0) 62%),
+                  radial-gradient(45% 70% at 0% 100%, rgb(240 140 100 / 0.60) 0%, rgb(240 140 100 / 0) 60%),
+                  linear-gradient(140deg, #bf452e 0%, #ad3a2b 52%, #96302a 100%);
+  --coral-pill:   linear-gradient(135deg, #c84a31, #a9392b);
+  --coral-glow:   0 8px 22px -6px rgb(214 86 56 / 0.70);
+
+  --accent:       var(--coral);
+  --accent-ink:   var(--on-coral);
+  --accent-soft:  var(--coral-soft);
+  --accent-line:  var(--coral-line);
+
+  --focus:        #1f56c8;
+  --focus-on-coral: #ffffff;
+  --alert:        #a8231b;
+  --alert-soft:   rgb(200 40 30 / 0.10);
+  --warn:         #8a4a0a;
+  --warn-soft:    rgb(214 140 40 / 0.16);
+  --good:         #1f6a3e;
+  --good-soft:    rgb(40 140 80 / 0.12);
+
+  /* ---- chart series ---- */
+  --series-now:   var(--coral);
+  --series-now-fill-1: rgb(232 112 79 / 0.30);
+  --series-now-fill-2: rgb(232 112 79 / 0);
+  --series-prev:  #a3887b;
+  --series-in:    #3e8466;
+  --series-out:   #d0674a;
+  --series-over:  #8f2a20;
+  --spark:        var(--coral-bright);
+  --spark-in:     #3e8466;
+
+  /* ---- rail ---- */
+  --rail-bg:      rgb(46 28 23 / 0.86);
+  --rail-border:  rgb(255 255 255 / 0.10);
+  --rail-ink:     #ead9d0;
+  --rail-ink-2:   #c7ada1;
+  --rail-hover:   rgb(255 255 255 / 0.09);
+  --tip-bg:       #2b1b15;
+  --tip-ink:      #fbf1ea;
+
+  --scrim:        rgb(60 25 12 / 0.28);
+
+  --s-1: 2px; --s0: 4px; --s1: 8px; --s2: 12px; --s3: 16px; --s4: 24px; --s5: 32px; --s6: 48px;
+  --r-1: 6px; --r-2: 10px; --r-3: 14px; --r-4: 18px; --r-panel: 22px; --r-pill: 999px;
+
+  /* type scale: 12 · 12.5 · 14 · 15 · 17 · 20 · 28 · 54 */
+  --t-2xs: 12px;
+  --t-xs: 12.5px;
+  --t-sm: 14px;
+  --t-md: 15px;
+  --t-lg: 17px;
+  --t-xl: 20px;
+  --t-2xl: 28px;
+  --t-3xl: 54px;
+
+  --titlebar-h: 40px;
+  --gap: 20px;
+
+  /* ---- one page grid for all five screens (header, filters and content share it) ---- */
+  --page-max:    1680px;   /* content column; centred beyond it */
+  --page-x:      28px;     /* side padding: 24 under 1360px, 36 over 1800px, 16 in reflow */
+  --page-top:    20px;     /* window title bar to the page title */
+  --page-bottom: 44px;
+  --head-gap:    16px;     /* page header (and filter bar) to the first panel */
+  --panel-pad:   20px 22px;   /* every panel and settings section */
+  --card-pad:    18px 20px;   /* KPI and summary cards */
+  --t-title:     28px;     /* page title (h1), every screen */
+  --t-h2:        18px;     /* panel / section / dialog title */
+
+  /* ---- controls: one height for everything on a toolbar row ---- */
+  --ctl-h:    36px;   /* buttons, pills, combos, search, segmented, steppers, inputs */
+  --ctl-h-sm: 30px;   /* small buttons, icon buttons, chips with an action */
+
+  /* ---- rows: tables and lists ---- */
+  --row-h:    52px;   /* a data row (two lines or one line with an avatar) */
+  --row-h-1:  44px;   /* a single-line pick list (institutions, settings lines) */
+  --row-h-c:  36px;   /* compact numeric tables (chart alternatives) */
+  --row-r:    var(--r-3);
+  --av:       34px;   /* avatar / icon tile at the start of a row */
+  --av-r:     12px;
+  --ease-out: cubic-bezier(.2, .7, .2, 1);
+  --ease-spring: cubic-bezier(.3, 1.3, .5, 1);
+  --dur: 140ms;
+  --dur-lift: 260ms;
+
+  /* ---- stacking: the one z-index scale (every layer uses these, nothing else) ---- */
+  --z-sticky:    2;    /* sticky table headers and day headers inside a scroller */
+  --z-rail:      15;
+  --z-titlebar:  20;
+  --z-inspector: 30;   /* only when it floats (reflow); as a column it needs none */
+  --z-scrim:     40;
+  --z-dialog:    50;
+  --z-palette:   60;
+  --z-popover:   70;   /* menus, listboxes, the category picker, the date popover */
+  --z-toast:     80;
+  --z-tooltip:   90;
+  --z-skip:      100;
+
+  /* ---- floating layer recipe (menus, listboxes, popovers) ---- */
+  --pop-radius:  var(--r-4);
+  --pop-pad:     6px;
+  --pop-item-h:  34px;
+  --pop-item-r:  var(--r-2);
+  --pop-gap:     6px;    /* distance from the trigger */
+  --pop-margin:  8px;    /* minimum distance from the window edges, the title bar and the rail */
+  --item-hover:  rgb(122 66 40 / 0.08);
+  --item-active: var(--coral-soft);
+
+  /* ---- focus: one ring, following each element's own radius ---- */
+  --focus-w:     2px;
+  --focus-gap:   2px;
+
+  /* ---- switch: neutral ink when on (coral read as an error state) ---- */
+  --switch-on:   #3b2820;
+  --switch-knob: #ffffff;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  /* espresso and aubergine, lit by an ember-coral glow */
+  --bd-base:   #1a1116;
+  --bd-1:      rgb(214 92 60 / 0.40);
+  --bd-2:      rgb(120 44 84 / 0.42);
+  --bd-3:      rgb(176 78 44 / 0.30);
+  --bd-4:      rgb(84 36 70 / 0.45);
+  --bd-5:      rgb(255 140 100 / 0.10);
+  --bd-lin-1:  #22161b;
+  --bd-lin-2:  #1b1216;
+  --bd-lin-3:  #150e12;
+  --grain-opacity: 0.16;
+  --grain-blend: soft-light;
+
+  --glass:          rgb(46 31 36 / 0.70);
+  --glass-strong:   rgb(42 29 34 / 0.92);
+  --glass-thin:     rgb(46 31 36 / 0.50);
+  --glass-solid:    #2a1d22;
+  --glass-solid-strong: #2a1d22;
+  --glass-border:   rgb(255 228 214 / 0.10);
+  --glass-edge:     rgb(0 0 0 / 0.30);
+  --glass-hi:       inset 0 1px 0 rgb(255 240 232 / 0.08), inset 0 0 0 1px rgb(255 240 232 / 0.03);
+  --shadow-glass:   0 1px 1px rgb(0 0 0 / 0.20), 0 16px 40px -14px rgb(0 0 0 / 0.60);
+  --shadow-lift:    0 1px 1px rgb(0 0 0 / 0.20), 0 26px 50px -16px rgb(0 0 0 / 0.70);
+  --shadow-float:   0 2px 6px rgb(0 0 0 / 0.30), 0 26px 64px -12px rgb(0 0 0 / 0.70);
+
+  --ink:          #f7ede7;
+  --ink-2:        #dcc9bf;
+  --ink-3:        #bba398;
+  --ink-4:        #6f5a52;
+  --rule:         rgb(255 228 214 / 0.09);
+  --rule-strong:  rgb(255 228 214 / 0.18);
+  --field-border: #8d766c;
+  --field-bg:     rgb(20 12 15 / 0.35);
+  --hover:        rgb(255 228 214 / 0.07);
+  --press:        rgb(255 228 214 / 0.12);
+  --track:        rgb(255 228 214 / 0.10);
+  --sunken:       rgb(0 0 0 / 0.18);
+  --card-in:      rgb(255 240 232 / 0.045);
+  --sev-knock:    #2a1d22;
+
+  --coral:        #ff9473;
+  --coral-bright: #ff8a66;
+  --coral-soft:   rgb(255 138 102 / 0.16);
+  --coral-ink:    #ffb39b;
+  --coral-line:   rgb(255 138 102 / 0.70);
+  --coral-glow:   0 8px 24px -6px rgb(255 110 70 / 0.55);
+  --accent-ink:   #2a120c;
+
+  --focus:        #93b5ff;
+  --alert:        #ff8f85;
+  --alert-soft:   rgb(255 110 100 / 0.14);
+  --warn:         #f2b86c;
+  --warn-soft:    rgb(240 170 80 / 0.14);
+  --good:         #84d6a4;
+  --good-soft:    rgb(110 210 150 / 0.12);
+
+  --series-now-fill-1: rgb(255 138 102 / 0.32);
+  --series-now-fill-2: rgb(255 138 102 / 0);
+  --series-prev:  #8f776d;
+  --series-in:    #5fb78e;
+  --series-out:   #ff8a66;
+  --series-over:  #ff5f55;
+  --spark-in:     #6cc79c;
+
+  --rail-bg:      rgb(22 14 18 / 0.72);
+  --rail-border:  rgb(255 228 214 / 0.09);
+  --tip-bg:       #f7ede7;
+  --tip-ink:      #2b1b15;
+
+  --scrim:        rgb(0 0 0 / 0.50);
+  --item-hover:   rgb(255 228 214 / 0.08);
+  --switch-on:    #f1e2d9;
+  --switch-knob:  #2a1d22;
+}

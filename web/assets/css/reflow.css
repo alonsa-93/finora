@@ -1,0 +1,38 @@
+/* Reflow (WCAG 1.4.10): the desktop window is at least 1100px wide, but at 200% zoom that is 550
+   CSS px. Below 1000px every multi-column grid stacks, the title bar drops its long texts, and the
+   inspector becomes an overlay instead of a third column. Loaded last; layout only. */
+@media (max-width: 1000px) {
+  :root { --page-x: 16px; --page-top: 14px; }
+  .ov-top, .ov-row, .an-top, .an-row, .an-row2, .an-prices, .onb { grid-template-columns: minmax(0, 1fr); }
+  .ov-kpis, .rc-summary, .an-psum { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hero { grid-template-columns: minmax(0, 1fr); }
+  .hero-side { justify-self: center; }
+  .st-sec { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .onb { padding: 24px; gap: 24px; }
+  .ins { grid-template-columns: minmax(0, 1fr) auto; }
+  .keys-grid, .co-lists { grid-template-columns: minmax(0, 1fr); }
+  .tb-cmd span, .tb-where, .tb-brand b { display: none; }
+  .tb-cmd { min-width: 0; }
+  .tb-demo { white-space: nowrap; }
+  .inspector {
+    position: fixed; z-index: var(--z-inspector); inset-block: calc(var(--titlebar-h, 38px) + 8px) 8px; inset-inline-end: 8px;
+    width: min(var(--insp-w, 340px), calc(100vw - 16px)); margin: 0; overflow: auto;
+  }
+  .dialog { max-width: calc(100vw - 24px); }
+  /* transactions: the whole page scrolls (a fixed header would leave no room for rows at 200%);
+     the column header and the day headers still stick, the filters wrap, the category joins the sub-line */
+  .tx { height: auto; display: block; }
+  .tx-sheet { overflow: visible; width: auto; margin: var(--head-gap) var(--page-x) 16px; max-width: none; }
+  .tx-search { flex-basis: 100%; max-width: none; }
+  .tx-bar .grow { display: none; }
+  .combo { max-width: 100%; }
+  .tx-figs { width: 100%; }
+  .fig { flex: 1 1 auto; min-width: fit-content; }
+  .range-pop { width: auto; }
+}
+@media (max-width: 640px) {
+  .ov-kpis, .rc-summary, .an-psum { grid-template-columns: minmax(0, 1fr); }
+  .an-fact { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .an-bm { grid-template-columns: 90px minmax(0, 1fr) auto; }
+  .hero-figure { font-size: clamp(40px, 13vw, 64px); }
+}

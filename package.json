@@ -1,0 +1,114 @@
+{
+  "name": "moneycash",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MoneyCash - local-only personal finance dashboard for Israeli banks and credit cards",
+  "author": "MoneyCash",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alonsa-93/moneycash.git"
+  },
+  "homepage": "https://github.com/alonsa-93/moneycash#readme",
+  "bugs": "https://github.com/alonsa-93/moneycash/issues",
+  "type": "module",
+  "main": "electron/main.mjs",
+  "scripts": {
+    "start": "node server/index.js --dev",
+    "start:hidden": "node server/index.js --dev --no-open",
+    "dev": "electron . --dev",
+    "dist": "electron-builder --win nsis portable --x64 && node scripts/checksums.mjs",
+    "icons": "node scripts/make-icon.mjs",
+    "test": "node --test \"server/test/*.test.js\"",
+    "audit": "npm audit --omit=dev --audit-level=high && npm audit signatures",
+    "sbom": "npm sbom --sbom-format cyclonedx --package-lock-only --omit=dev > dist/sbom.cdx.json",
+    "notices": "node scripts/notices.mjs"
+  },
+  "engines": {
+    "node": ">=22.22.2"
+  },
+  "dependencies": {
+    "express": "5.3.0",
+    "israeli-bank-scrapers": "6.13.0",
+    "puppeteer-core": "25.17.0"
+  },
+  "devDependencies": {
+    "electron": "45.3.2",
+    "electron-builder": "26.18.0"
+  },
+  "build": {
+    "appId": "com.moneycash.app",
+    "productName": "MoneyCash",
+    "copyright": "MoneyCash",
+    "directories": {
+      "output": "dist",
+      "buildResources": "electron/assets"
+    },
+    "files": [
+      "package.json",
+      "electron/**/*",
+      "!electron/assets/installer.nsh",
+      "server/**/*",
+      "!server/test/**",
+      "web/**/*",
+      "!**/node_modules/**/*.{map,ts,cts,mts,tsbuildinfo,pdl}",
+      "!**/node_modules/**/{README,CHANGELOG,HISTORY,CONTRIBUTING}*",
+      "!**/node_modules/**/{test,tests,__tests__,example,examples,docs,.github}/**",
+      "!**/node_modules/**/{.nycrc,.editorconfig,.eslintrc*,.prettierrc*}",
+      "!**/node_modules/puppeteer*/src/**"
+    ],
+    "asar": true,
+    "electronFuses": {
+      "runAsNode": false,
+      "enableNodeOptionsEnvironmentVariable": false,
+      "enableNodeCliInspectArguments": false,
+      "onlyLoadAppFromAsar": true,
+      "enableEmbeddedAsarIntegrityValidation": true,
+      "enableCookieEncryption": true,
+      "grantFileProtocolExtraPrivileges": false
+    },
+    "win": {
+      "icon": "electron/assets/icon.ico",
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "signExecutable": false,
+      "signExts": [
+        ".dll"
+      ],
+      "signtoolOptions": {
+        "signingHashAlgorithms": [
+          "sha256"
+        ],
+        "rfc3161TimeStampServer": "http://timestamp.digicert.com"
+      }
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "MoneyCash",
+      "artifactName": "MoneyCash-Setup-${version}.${ext}",
+      "include": "installer.nsh"
+    },
+    "portable": {
+      "artifactName": "MoneyCash-${version}-portable.${ext}"
+    },
+    "extraFiles": [
+      {
+        "from": "THIRD-PARTY-NOTICES.txt",
+        "to": "THIRD-PARTY-NOTICES.txt"
+      }
+    ]
+  },
+  "license": "GPL-3.0-only",
+  "overrides": {
+    "puppeteer": "npm:puppeteer-core@25.17.0",
+    "minimatch@>=7.0.0 <11.0.1": "11.0.8"
+  },
+  "allowScripts": {
+    "electron-winstaller@5.4.0": true
+  }
+}

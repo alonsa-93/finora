@@ -1,0 +1,32 @@
+# dependencies / build output
+node_modules/
+dist/
+out/
+
+# never commit data, keys, logs or secrets
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.db.enc
+*.db.enc.*
+dek.json
+keys/
+*.log
+logs/
+desktop.json
+*.csv
+.env
+.env.*
+*.pem
+*.pfx
+*.p12
+*.key
+
+# OS / editor noise
+Thumbs.db
+.DS_Store
+desktop.ini
+.vscode/
+.idea/
+.claude/
