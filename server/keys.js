@@ -30,7 +30,7 @@ export class KeyUnavailableError extends Error {
   }
 }
 
-export const KEY_UNAVAILABLE_HE = 'לא ניתן לפתוח את הנתונים המוצפנים של MoneyCash במשתמש Windows הזה. '
+export const KEY_UNAVAILABLE_HE = 'לא ניתן לפתוח את הנתונים המוצפנים של Finora במשתמש Windows הזה. '
   + 'זה קורה בדרך כלל אחרי איפוס סיסמת Windows, העברת פרופיל או מעבר למחשב אחר. '
   + 'אפשר להתחיל מחדש: הנתונים הישנים יימחקו, ותצטרך לחבר שוב את החשבונות (המשיכה מביאה כ-12 חודשים אחורה).';
 
@@ -160,6 +160,7 @@ export const hasKeyFile = () => existsSync(keyFile());
 /** HKDF-SHA256 subkey for a fixed label. */
 export function subkey(label) {
   if (subkeys.has(label)) return subkeys.get(label);
+  // 'MoneyCash/v1' is the app's former name, frozen: changing it would make existing data unreadable.
   const k = Buffer.from(hkdfSync('sha256', ensureKey(), Buffer.from('MoneyCash/v1'), Buffer.from(label), 32));
   subkeys.set(label, k);
   return k;

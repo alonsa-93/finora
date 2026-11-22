@@ -74,15 +74,15 @@ test('guards: missing or empty Host header is refused', async () => {
   }
 });
 
-test('guards: state-changing requests need X-MoneyCash: 1', async () => {
+test('guards: state-changing requests need X-Finora: 1', async () => {
   for (const v of [undefined, '0', 'true', '', '11', '1,1']) {
-    const r = await send('POST', '/api/demo', { enabled: true }, { 'X-MoneyCash': v });
-    assert.equal(r.status, 403, `X-MoneyCash=${JSON.stringify(v)}`);
+    const r = await send('POST', '/api/demo', { enabled: true }, { 'X-Finora': v });
+    assert.equal(r.status, 403, `X-Finora=${JSON.stringify(v)}`);
     assert.equal(r.json?.error?.code, 'FORBIDDEN');
   }
   for (const [m, p] of [['PATCH', '/api/settings'], ['DELETE', '/api/connections/1'], ['PUT', '/api/demo'],
     ['POST', '/api/sync'], ['POST', '/'], ['PATCH', '/api/transactions/1']]) {
-    const r = await send(m, p, {}, { 'X-MoneyCash': undefined });
+    const r = await send(m, p, {}, { 'X-Finora': undefined });
     assert.equal(r.status, 403, `${m} ${p}`);
   }
   assert.equal((await send('POST', '/api/demo', { enabled: true })).status, 200); // control
@@ -136,7 +136,7 @@ test('guards: Sec-Fetch-Site on /api reads (incl. CSV export)', async () => {
 test('guards: OPTIONS is refused (405) and never answers a CORS preflight', async () => {
   for (const path of ['/api/status', '/api/connections', '/api/demo', '/', '/assets/js/app.js']) {
     const r = await request(port, 'OPTIONS', path, {
-      headers: { Origin: 'http://evil.example', 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': 'x-moneycash, content-type' },
+      headers: { Origin: 'http://evil.example', 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': 'x-finora, content-type' },
     });
     assert.equal(r.status, 405, path);
     assert.equal(r.headers['access-control-allow-origin'], undefined);
@@ -166,7 +166,7 @@ test('auth: with a token configured, /api needs the exact per-port mc_auth_<port
   const api = config.getApiToken();
   assert.match(api, /^[A-Za-z0-9_-]{43}$/);
   assert.notEqual(api, token);
-  const X = { 'X-MoneyCash': api };
+  const X = { 'X-Finora': api };
   try {
     for (const path of ['/api/status', '/api/transactions', '/api/export.csv', '/api/connections', '/api/nope']) {
       const none = await get(path, { headers: X });
@@ -178,7 +178,7 @@ test('auth: with a token configured, /api needs the exact per-port mc_auth_<port
       }
       // The cookie alone (what another 127.0.0.1 listener could capture) is not enough.
       for (const x of [undefined, '', '1', `${api.slice(0, -1)}A`, `${api}x`, api.slice(1), token]) {
-        assert.equal((await get(path, { headers: { Cookie: `${N}=${token}`, 'X-MoneyCash': x } })).status, 401, `${path} X-MoneyCash=${x}`);
+        assert.equal((await get(path, { headers: { Cookie: `${N}=${token}`, 'X-Finora': x } })).status, 401, `${path} X-Finora=${x}`);
       }
       assert.equal((await get(path, { headers: { Cookie: `${N}=${token}`, ...X } })).status === 401, false, `${path} cookie + token`);
     }
@@ -186,7 +186,7 @@ test('auth: with a token configured, /api needs the exact per-port mc_auth_<port
     assert.equal((await get('/api/status', { headers: { Cookie: `theme=dark; ${N}=${token}; x=1`, ...X } })).status, 200);
     // Mutations: no cookie => 401 even with the token; cookie without the token (or with '1') => 401.
     assert.equal((await send('POST', '/api/demo', { enabled: true }, X)).status, 401);
-    assert.equal((await send('POST', '/api/demo', { enabled: true }, { Cookie: `${N}=${token}`, 'X-MoneyCash': undefined })).status, 401);
+    assert.equal((await send('POST', '/api/demo', { enabled: true }, { Cookie: `${N}=${token}`, 'X-Finora': undefined })).status, 401);
     assert.equal((await send('POST', '/api/demo', { enabled: true }, { Cookie: `${N}=${token}` })).status, 401);
     assert.equal((await send('POST', '/api/demo', { enabled: true }, { Cookie: `${N}=${token}`, ...X })).status, 200);
     // CSRF rules still apply with both factors.
@@ -224,7 +224,7 @@ test('auth: POST /api/session trades a one-time token for the cookie and the API
     const old = session.armBootstrap(Date.now() - session.BOOTSTRAP_TTL_MS - 1000);
     assert.equal((await send('POST', '/api/session', { token: old })).status, 401);
     // The token from the answer opens /api together with the cookie.
-    const X = { Cookie: `mc_auth_${port}=${token}`, 'X-MoneyCash': ok.json.apiToken };
+    const X = { Cookie: `mc_auth_${port}=${token}`, 'X-Finora': ok.json.apiToken };
     assert.equal((await get('/api/status', { headers: X })).status, 200);
   } finally {
     config.setAuthToken(null);
@@ -454,8 +454,8 @@ test('input: SQL metacharacters in q are matched as literal text', async () => {
 
 // ---- 5. static file serving ---------------------------------------------------------------------
 
-const LEAK_MARKERS = ['"name": "moneycash"', 'electronFuses', 'createApp', 'DatabaseSync', '[extensions]', 'for 16-bit app support',
-  'root:x:0:0', '"name": "express"', '"name": "chart.js"', 'MONEYCASH', 'harden-env'];
+const LEAK_MARKERS = ['"name": "finora"', 'electronFuses', 'createApp', 'DatabaseSync', '[extensions]', 'for 16-bit app support',
+  'root:x:0:0', '"name": "express"', '"name": "chart.js"', 'FINORA', 'harden-env'];
 function traversalPaths() {
   const paths = [];
   for (const prefix of ['', '/assets', '/assets/js', '/vendor', '/vendor/heebo']) {
@@ -533,7 +533,7 @@ test('csv: formula injection is neutralised (= + - @ tab CR, leading space, full
   const r = await get('/api/export.csv?from=2020-01-01&to=2020-01-31');
   assert.equal(r.status, 200);
   assert.match(r.headers['content-type'], /^text\/csv; charset=utf-8$/i);
-  assert.match(r.headers['content-disposition'], /^attachment; filename="moneycash-2020-01-01-2020-01-31\.csv"$/);
+  assert.match(r.headers['content-disposition'], /^attachment; filename="finora-2020-01-01-2020-01-31\.csv"$/);
   const rows = parseCsv(r.text.replace(/^\uFEFF/, ''));
   const data = rows.slice(1);
   assert.equal(data.length, payloads.length);

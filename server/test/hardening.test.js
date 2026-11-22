@@ -39,7 +39,7 @@ test('bootstrap token: single use, burnt after 5 failures, void after the TTL', 
 
 test('app window: only our own server command line may be killed after pid reuse', async () => {
   const { isOurServerCommandLine } = await import('../app-window.js');
-  const idx = 'C:\\Users\\u\\AppData\\Local\\Programs\\MoneyCash\\server\\index.js';
+  const idx = 'C:\\Users\\u\\AppData\\Local\\Programs\\Finora\\server\\index.js';
   assert.equal(isOurServerCommandLine(`"C:\\Program Files\\nodejs\\node.exe" "${idx}" --app-window`, idx), true);
   assert.equal(isOurServerCommandLine(`node.exe ${idx.toLowerCase().replace(/\\/g, '/')} --dev --app-window`, idx), true);
   for (const other of ['', null, 'node.exe C:\\other\\tool\\index.js --app-window', `node.exe "${idx}"`,
@@ -49,7 +49,7 @@ test('app window: only our own server command line may be killed after pid reuse
   assert.equal(isOurServerCommandLine(`node "${idx}" --app-window`, ''), false);
 });
 
-test('profile sweep removes only MoneyCash\'s own run\\scrape-* dirs, never %TEMP%\\puppeteer_dev_*', async () => {
+test('profile sweep removes only Finora\'s own run\\scrape-* dirs, never %TEMP%\\puppeteer_dev_*', async () => {
   const { sweepScraperProfiles } = await import('../browser.js');
   const config = await import('../config.js');
   const foreign = join(tmpdir(), `puppeteer_dev_chrome_profile-mctest${randomBytes(4).toString('hex')}`);

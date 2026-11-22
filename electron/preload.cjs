@@ -4,11 +4,11 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 const info = ipcRenderer.sendSync('mc:app-info') || {};
 
-contextBridge.exposeInMainWorld('moneycash', {
+contextBridge.exposeInMainWorld('finora', {
   isDesktop: true,
   version: String(info.version || ''),
   platform: String(info.platform || ''),
-  // Second factor for /api (X-MoneyCash, see server/config.js). Only our own window gets it (main
+  // Second factor for /api (X-Finora, see server/config.js). Only our own window gets it (main
   // checks the sender); it lives in memory only.
   apiToken: String(info.apiToken || ''),
   window: {

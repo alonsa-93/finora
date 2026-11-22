@@ -13,6 +13,7 @@ import { systemExe } from './config.js';
 // Legacy v1 (reads credentials written by earlier versions so they can be upgraded).
 // v1 fixed entropy. It is NOT a secret (it is in this source file): it only separates our blobs from
 // other DPAPI blobs of the same user. See keys.js for the per-install entropy used by v2.
+// Former app name, frozen: it must match what earlier versions used to protect their data.
 export const LEGACY_ENTROPY = Buffer.from('MoneyCash/credentials/v1', 'utf8');
 
 const POWERSHELL = () => systemExe('WindowsPowerShell', 'v1.0', 'powershell.exe');

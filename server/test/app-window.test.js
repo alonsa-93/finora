@@ -1,4 +1,4 @@
-// app-window.js: one MoneyCash at a time, and closing the window never cuts a sync short.
+// app-window.js: one Finora at a time, and closing the window never cuts a sync short.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync, readdirSync } from 'node:fs';

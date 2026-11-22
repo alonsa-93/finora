@@ -146,7 +146,7 @@ export function mountDashboards(container, params = {}) {
       h('header', { class: 'dash-head' }, h('h1', null, 'דשבורדים')),
       h('section', { class: 'panel' }, emptyState({
         icon: 'grid', title: 'עוד לא חיברת גיליון Google',
-        text: 'מחברים גיליון (הכנסות, לקוחות, לידים, מלאי…) ו-MoneyCash בונה ממנו דשבורד. הנתונים נמשכים מחדש בכל פתיחה ובכל לחיצה על סנכרון, ואת הדשבורד אפשר לשנות ולהרכיב כרצונך.',
+        text: 'מחברים גיליון (הכנסות, לקוחות, לידים, מלאי…) ו-Finora בונה ממנו דשבורד. הנתונים נמשכים מחדש בכל פתיחה ובכל לחיצה על סנכרון, ואת הדשבורד אפשר לשנות ולהרכיב כרצונך.',
         action: h('button', { class: 'btn primary', type: 'button', onclick: () => openSheetDialog({ onAdded: () => setTimeout(() => load(), 2500) }) }, icon('link'), 'חיבור גיליון'),
       })));
   }

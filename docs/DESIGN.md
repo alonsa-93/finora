@@ -1,4 +1,4 @@
-# MoneyCash UI: design spec
+# Finora UI: design spec
 
 ## Who
 One Israeli household member, on their own Windows PC, who wants to know where the
@@ -79,7 +79,7 @@ the real percentage (e.g. 102%). It has an `aria-label` sentence; the figure is 
   (opacity, not visibility). Ctrl+B toggles to the 200px labelled sidebar (pref `railCollapsed`,
   default rail). The footer keeps the live connection dot.
 - **Title bar** is custom and frameless in the desktop window (`app-region: drag`, window controls
-  via `window.moneycash.window.*`): a thin glass strip with a pill command trigger and, while
+  via `window.finora.window.*`): a thin glass strip with a pill command trigger and, while
   business mode is on, the lens switch (הכול / עסק / פרטי).
 - **KPI cards** that open something lift 5px on hover with a spring ease and a deeper shadow; a
   stretched button carries the click and the focus ring. Cards that open nothing do not lift.

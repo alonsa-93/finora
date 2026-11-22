@@ -223,15 +223,15 @@ export function createApp({ onWipe = null, onSession = null } = {}) {
     }
     // The one-time bootstrap exchange (CLI / browser mode) is the only /api call without a cookie.
     if (req.method === 'POST' && req.path === '/session') { next(); return; }
-    // Cookie AND API token (X-MoneyCash): the cookie alone can leak to any other 127.0.0.1 listener
+    // Cookie AND API token (X-Finora): the cookie alone can leak to any other 127.0.0.1 listener
     // the browser visits (config.js). No token configured = refused, except in the test suite.
     const token = getAuthToken();
     if (!token ? !noAuthAllowed() : !tokenMatches(cookieValue(req, authCookieName()), token)) {
-      deny(res, 401, 'UNAUTHORIZED', 'הגישה מותרת רק מתוך אפליקציית MoneyCash.', 'no_cookie', req);
+      deny(res, 401, 'UNAUTHORIZED', 'הגישה מותרת רק מתוך אפליקציית Finora.', 'no_cookie', req);
       return;
     }
-    if (token && !tokenMatches(req.headers['x-moneycash'] ?? '', getApiToken())) {
-      deny(res, 401, 'UNAUTHORIZED', 'הגישה מותרת רק מתוך אפליקציית MoneyCash.', 'no_api_token', req);
+    if (token && !tokenMatches(req.headers['x-finora'] ?? '', getApiToken())) {
+      deny(res, 401, 'UNAUTHORIZED', 'הגישה מותרת רק מתוך אפליקציית Finora.', 'no_api_token', req);
       return;
     }
     if (isLocked()) {
@@ -251,9 +251,9 @@ export function createApp({ onWipe = null, onSession = null } = {}) {
     const origin = req.headers.origin;
     const ctype = String(req.headers['content-type'] || '').toLowerCase();
     const fetchSite = req.headers['sec-fetch-site'];
-    // X-MoneyCash forces a CORS preflight: '1' (POST /api/session, before the page has a token) or
+    // X-Finora forces a CORS preflight: '1' (POST /api/session, before the page has a token) or
     // the API token (every other /api call, checked above).
-    const x = req.headers['x-moneycash'];
+    const x = req.headers['x-finora'];
     const apiToken = getApiToken();
     if ((x !== '1' && !(apiToken && typeof x === 'string' && tokenMatches(x, apiToken)))
       || !/^application\/json(\s*;.*)?$/.test(ctype)
@@ -467,12 +467,12 @@ export function createApp({ onWipe = null, onSession = null } = {}) {
   });
 
   // One-time bootstrap (CLI / browser mode): exchanges the token from the /auth#<token> URL for the
-  // HttpOnly cookie and, in the body, the API token the page sends in X-MoneyCash from then on.
+  // HttpOnly cookie and, in the body, the API token the page sends in X-Finora from then on.
   // Single use, expires, constant-time comparison (session.js).
   api.post('/session', (req, res) => {
     const b = body(req);
     if (!onSession || !getAuthToken() || typeof b.token !== 'string' || b.token.length > 200 || !onSession(b.token)) {
-      deny(res, 401, 'UNAUTHORIZED', 'הקישור לכניסה כבר נוצל או אינו תקין. הפעל את MoneyCash מחדש.', 'bootstrap', req);
+      deny(res, 401, 'UNAUTHORIZED', 'הקישור לכניסה כבר נוצל או אינו תקין. הפעל את Finora מחדש.', 'bootstrap', req);
       return;
     }
     res.set('Set-Cookie', `${authCookieName()}=${getAuthToken()}; HttpOnly; SameSite=Strict; Path=/`);
@@ -698,7 +698,7 @@ export function createApp({ onWipe = null, onSession = null } = {}) {
         owner ? (t.transferKind === 'owner_draw' ? 'משיכה לפרטי' : 'הזרמה לעסק') : '',
       ].map(csvCell).join(','));
     }
-    const name = `moneycash-business-${from || 'all'}-${to || todayISO()}.csv`;
+    const name = `finora-business-${from || 'all'}-${to || todayISO()}.csv`;
     res.set({ 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': `attachment; filename="${name}"` });
     res.send(`\ufeff${lines.join('\r\n')}\r\n`);
   });
@@ -779,7 +779,7 @@ export function createApp({ onWipe = null, onSession = null } = {}) {
         t.status === 'pending' ? 'ממתין' : 'סופי', t.isCardPayment ? 'כן' : '', t.excluded ? 'כן' : '',
       ].map(csvCell).join(','));
     }
-    const name = `moneycash-${from || 'all'}-${to || todayISO()}.csv`;
+    const name = `finora-${from || 'all'}-${to || todayISO()}.csv`;
     res.set({ 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': `attachment; filename="${name}"` });
     res.send(`﻿${lines.join('\r\n')}\r\n`);
   });
@@ -803,7 +803,7 @@ export function createApp({ onWipe = null, onSession = null } = {}) {
   app.use(express.static(WEB_DIR, { index: 'index.html', dotfiles: 'ignore' }));
   app.get('/', (req, res) => {
     if (existsSync(join(WEB_DIR, 'index.html'))) { res.sendFile(join(WEB_DIR, 'index.html')); return; }
-    res.type('html').send('<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><title>MoneyCash</title></head>'
+    res.type('html').send('<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><title>Finora</title></head>'
       + '<body><p>השרת פועל, אבל ממשק המשתמש (web/index.html) עדיין לא קיים.</p></body></html>');
   });
   app.use((req, res) => {

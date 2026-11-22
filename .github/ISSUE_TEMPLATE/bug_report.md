@@ -21,5 +21,5 @@ labels: bug
 **Environment**
 - Windows version:
 - Node.js version (`node -v`):
-- How you run MoneyCash (shortcut / Electron window / `npm start` / `npm run dev`):
+- How you run Finora (shortcut / Electron window / `npm start` / `npm run dev`):
 - Bank or card company involved (name only, if relevant):

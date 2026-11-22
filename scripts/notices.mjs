@@ -8,9 +8,9 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const out = execSync('npm ls --omit=dev --all --parseable', { cwd: root, encoding: 'utf8' }); // constant command
 const dirs = [...new Set(out.split(/\r?\n/).filter((d) => d && d !== root))].sort();
-const parts = ['MoneyCash - third-party software notices', '='.repeat(60),
-  'MoneyCash includes the following open-source components. Electron and Chromium notices are in',
-  'LICENSE.electron.txt and LICENSES.chromium.html next to MoneyCash.exe.', ''];
+const parts = ['Finora - third-party software notices', '='.repeat(60),
+  'Finora includes the following open-source components. Electron and Chromium notices are in',
+  'LICENSE.electron.txt and LICENSES.chromium.html next to Finora.exe.', ''];
 const seen = new Set();
 for (const d of dirs) {
   let pkg;

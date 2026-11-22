@@ -118,7 +118,7 @@ export async function startServer({
   setPort(server.address().port);
   server.requestTimeout = 30000;
   server.headersTimeout = 15000;
-  log.info(`MoneyCash listening on ${appUrl()} demo=${isDemoMode()} today=${todayISO()}`
+  log.info(`Finora listening on ${appUrl()} demo=${isDemoMode()} today=${todayISO()}`
     + ` start_ms=${Date.now() - t0} (folder=${tSweep - t0} data=${tDb - tSweep}) since_launch_ms=${Math.round(process.uptime() * 1000)}`);
   startScheduler();
   // Sync on open: refresh the real connections right away (opensync.js has the rules). The window

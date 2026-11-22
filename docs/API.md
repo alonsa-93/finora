@@ -1,4 +1,4 @@
-# MoneyCash HTTP API
+# Finora HTTP API
 
 Local-only personal finance app. Node server on `http://127.0.0.1:4580` serves the
 static dashboard from `web/` (plain ES modules, no build step) and a JSON API under `/api`.
@@ -26,8 +26,8 @@ Data is pulled read-only with `israeli-bank-scrapers`. UI language: Hebrew, RTL.
   `income` are positive magnitudes.
 - Dates: ISO `YYYY-MM-DD`. Months: `YYYY-MM`. Timestamps: ISO 8601.
 - Errors: non-2xx with `{ "error": { "code": "STRING", "message": "Hebrew, user-facing" } }`.
-- Every `/api/*` request must send header `X-MoneyCash: <apiToken>` (see Authentication); only
-  `POST /api/session` sends `X-MoneyCash: 1`. Mutating requests (POST/PATCH/DELETE) also need
+- Every `/api/*` request must send header `X-Finora: <apiToken>` (see Authentication); only
+  `POST /api/session` sends `X-Finora: 1`. Mutating requests (POST/PATCH/DELETE) also need
   `Content-Type: application/json`. Server rejects otherwise (CSRF guard).
 - Credentials go **in** via `POST /api/connections` only and are **never** returned.
 - `/api/*` refuses requests whose `Sec-Fetch-Site` is `cross-site`/`same-site` (403 `FORBIDDEN`).
@@ -42,11 +42,11 @@ SameSite=Strict; Path=/`, compared in constant time and never written to disk. W
 `UNAUTHORIZED`.
 
 The cookie alone is not enough: other services on 127.0.0.1 can receive it, because browsers ignore
-ports for cookies. Every `/api/*` call must also carry a per-launch API token in `X-MoneyCash`
+ports for cookies. Every `/api/*` call must also carry a per-launch API token in `X-Finora`
 (compared in constant time). The page holds it only in memory or `sessionStorage`, never in a URL.
 File downloads (CSV exports) are fetched with the header and saved through a `blob:` URL.
 - **Desktop (Electron):** the shell sets the cookie for its own window and hands the API token to
-  the page over IPC (`window.moneycash.apiToken`).
+  the page over IPC (`window.finora.apiToken`).
 - **Browser mode (`npm start`):** the server opens `http://127.0.0.1:<port>/auth#<one-time token>`.
   The page (`/assets/js/auth.js`) removes the fragment from the address bar, POSTs it to
   `POST /api/session` (→ 200 `{ "apiToken": "..." }` + `Set-Cookie`), keeps the API token in
@@ -59,7 +59,7 @@ File downloads (CSV exports) are fetched with the header and saved through a `bl
   `security event=deny_<status> reason=...` lines, with no header values and no data.
 
 ### POST /api/session `{ "token": "<one-time bootstrap token>" }` → 200 `{ "apiToken": "..." }` + `Set-Cookie: mc_auth_<port>=...`
-The only `/api` call accepted without the cookie and API token (send `X-MoneyCash: 1`). 401 if the
+The only `/api` call accepted without the cookie and API token (send `X-Finora: 1`). 401 if the
 token is wrong, already used or expired.
 
 ## Endpoints
@@ -76,7 +76,7 @@ applied at start (`null` off Windows). `false` is also logged as `security event
 `diskEncryption`: `"on" | "off" | null`. It reports BitLocker / Device Encryption of the system and
 data drives, read without admin rights shortly after start. `null` means unknown or not checked yet.
 
-`syncOnOpen` (boolean, default `true`): sync as soon as MoneyCash opens (see *Sync on open*).
+`syncOnOpen` (boolean, default `true`): sync as soon as Finora opens (see *Sync on open*).
 
 ### POST /api/demo  `{ "enabled": true }` → status object
 Demo data lives in a separate DB; real data is never touched by demo mode. The demo covers 25 months
@@ -139,10 +139,10 @@ Always deletes the connection and its sealed credentials. With `deleteData=true`
 the connection's accounts and transactions, and every merchant `rule` that no remaining transaction
 uses. Deleted rows are zeroed in memory (`secure_delete`) and the DB is `VACUUM`ed. The encrypted
 snapshot is then rewritten with the previous generation dropped, so no copy of the deleted rows
-stays in MoneyCash's files. 409 `SYNC_RUNNING`.
+stays in Finora's files. 409 `SYNC_RUNNING`.
 
 ### POST /api/wipe `{ "confirm": "מחק" }` → 200 `{ "ok": true, "restarting": true, "leftovers": 0 }`
-Deletes everything MoneyCash stores, in this order:
+Deletes everything Finora stores, in this order:
 1. Stops a running sync, which closes its browser.
 2. **Crypto-shreds** the data key: `keys/dek.json` is overwritten and deleted, and the key is zeroed
    in memory. From then on, every copy of the encrypted data anywhere (backups, restore points, SSD
@@ -159,8 +159,8 @@ The app then starts in first-run state (new key, demo mode). 400 `CONFIRM_REQUIR
 ### POST /api/sync  `{ "connectionId": 1 }` (omit for all) → 202 sync-status object
 409 `SYNC_RUNNING` if already running.
 `{ "connectionId": 1, "interactive": true }`: real mode only, one connection. Opens a visible window
-of the site; MoneyCash fills in the user name and password and the user types the one-time code
-into the site's own page (it never passes through MoneyCash). Waits up to 5 minutes for the login.
+of the site; Finora fills in the user name and password and the user types the one-time code
+into the site's own page (it never passes through Finora). Waits up to 5 minutes for the login.
 Sites that ask for codes keep a per-connection browser profile (`profiles/conn-<id>` in the data
 folder, deleted with the connection) so the site recognises the computer on later syncs.
 400 `BAD_REQUEST` without `connectionId`, in demo mode, or when `interactive` is not a boolean.
@@ -467,7 +467,7 @@ first month with data, so the UI never names an empty month.
 שאלות: a Hebrew question about the user's own money, answered **locally** (`server/chat.js`): no model and no
 network call. The question is parsed into a fixed set of question types and answered by the same functions
 the screens use, so the numbers agree with them. The question is never logged or stored (the client keeps
-the conversation in memory only). POST so the question stays out of URLs; the usual `X-MoneyCash` / JSON /
+the conversation in memory only). POST so the question stays out of URLs; the usual `X-Finora` / JSON /
 Origin guards apply. 400 `BAD_REQUEST` for a missing, empty or non-string `question` or one over 300
 characters.
 ```json
@@ -571,7 +571,7 @@ At most 24 widgets; columns are checked against the table width. Deleting a shee
 
 ## Data at rest (server)
 
-- `%LOCALAPPDATA%\MoneyCash` gets a protected DACL (current user + SYSTEM, no inheritance) when it
+- `%LOCALAPPDATA%\Finora` gets a protected DACL (current user + SYSTEM, no inheritance) when it
   is created and again on every start.
 - **Data key:** one random 256-bit key per install, stored in `keys/dek.json`.
   - It is wrapped with DPAPI CurrentUser, plus Electron `safeStorage` in the desktop app.

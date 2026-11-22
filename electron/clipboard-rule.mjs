@@ -1,4 +1,4 @@
-// What the renderer may put on the clipboard through `window.moneycash.clipboard.writeText`:
+// What the renderer may put on the clipboard through `window.finora.clipboard.writeText`:
 // one amount (optional sign and currency symbol, digits with optional thousands separators and up
 // to two decimals), at most 64 characters. Nothing else - no text, no URLs, no control characters.
 // Pure (no Electron import) so server/test can check it.

@@ -1,4 +1,4 @@
-// Sync on open: when MoneyCash starts (Electron launch, `npm start`) or its window comes back after
+// Sync on open: when Finora starts (Electron launch, `npm start`) or its window comes back after
 // being hidden for a while, refresh the real connections at once, without a click.
 //
 // Rules (decideOpenSync, pure and unit-tested):

@@ -142,7 +142,7 @@ async function boot() {
   try {
     await Promise.all([loadStatus(), loadReference(), loadBusiness({ silent: true })]);
   } catch (e) {
-    main.replaceChildren(h('div', { class: 'view' }, h('div', { class: 'ov-pad' }, errorState('אין חיבור לשרת של MoneyCash', e.message, () => location.reload()))));
+    main.replaceChildren(h('div', { class: 'view' }, h('div', { class: 'ov-pad' }, errorState('אין חיבור לשרת של Finora', e.message, () => location.reload()))));
     return;
   }
   renderStatusChrome();

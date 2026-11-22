@@ -2,7 +2,7 @@
 // user names or paths here - callers must scrub first (see errors.js). Messages are single-line.
 //
 // Retention: the active file rotates at 2 MB or when it is older than a day; rotated files
-// (moneycash-<date>.log) are deleted after 30 days.
+// (finora-<date>.log) are deleted after 30 days.
 // Security events (securityEvent) are rate-limited per key to one line per minute, with a count of
 // what was suppressed.
 import { appendFileSync, statSync, renameSync, readdirSync, unlinkSync, openSync, readSync, closeSync } from 'node:fs';
@@ -19,7 +19,7 @@ let checked = 0;
 function target() {
   if (!file) {
     dir = join(dataDir(), 'logs');
-    file = join(dir, 'moneycash.log');
+    file = join(dir, 'finora.log');
     pruneLogs();
   }
   return file;
@@ -30,7 +30,7 @@ export function pruneLogs(now = Date.now()) {
   try {
     const d = dir || join(dataDir(), 'logs');
     for (const f of readdirSync(d)) {
-      if (!/^moneycash(-[\dT-]+)?\.log(\.1)?$/.test(f) || f === 'moneycash.log') continue;
+      if (!/^(finora|moneycash)(-[\dT-]+)?\.log(\.1)?$/.test(f) || f === 'finora.log') continue; // moneycash*: before 1.1
       const p = join(d, f);
       try { if (now - statSync(p).mtimeMs > RETENTION_DAYS * 24 * 3600 * 1000) unlinkSync(p); } catch { /* ignore */ }
     }
@@ -59,7 +59,7 @@ function rotateIfNeeded(f) {
     // birthtime made it rotate every 10 seconds, one log file per line.
     if (st.size > MAX_BYTES || now - firstLineTime(f, st.mtimeMs) > MAX_AGE_MS) {
       const stamp = new Date(now).toISOString().slice(0, 19).replace(/:/g, '-');
-      renameSync(f, join(dir, `moneycash-${stamp}.log`));
+      renameSync(f, join(dir, `finora-${stamp}.log`));
       pruneLogs(now);
     }
   } catch { /* file does not exist yet */ }
@@ -72,7 +72,7 @@ function write(level, msg) {
     rotateIfNeeded(f);
     appendFileSync(f, line, 'utf8');
   } catch { /* logging must never crash the app */ }
-  if (level !== 'DEBUG' && !process.env.MONEYCASH_QUIET) process.stdout.write(line);
+  if (level !== 'DEBUG' && !process.env.FINORA_QUIET) process.stdout.write(line);
 }
 
 export const log = {

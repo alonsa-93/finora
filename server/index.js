@@ -1,8 +1,8 @@
 // CLI entry: `npm start` (opens the default browser) or `node server/index.js --no-open`.
-// Port: env PORT (or MONEYCASH_PORT), default 4580.
+// Port: env PORT (or FINORA_PORT), default 4580.
 //
 // Browser mode is authenticated like the desktop app: a per-launch session token is required on
-// every /api call (HttpOnly SameSite=Strict cookie, plus the API token in X-MoneyCash, config.js).
+// every /api call (HttpOnly SameSite=Strict cookie, plus the API token in X-Finora, config.js).
 // The browser receives both through a one-time bootstrap URL http://127.0.0.1:<port>/auth#<one-time
 // token> that expires after 2 minutes (see session.js).
 // If the port is taken we exit with an error and never open whatever is listening there.
@@ -11,7 +11,7 @@
 // the stored data can no longer be decrypted, e.g. after a Windows password reset),
 // --app-window: the desktop window without Electron. Smart App Control can stop trusting the
 // unsigned electron.exe; Node.js and Microsoft Edge are signed. The dashboard opens in an Edge app
-// window with its own profile (<data dir>\edge-window). See app-window.js: one MoneyCash at a time
+// window with its own profile (<data dir>\edge-window). See app-window.js: one Finora at a time
 // (a second launch asks the running one for a window), and closing the window stops the server only
 // once no sync is running (pid in <data dir>\run\app-window.json).
 import './harden-env.js'; // must stay the first import
@@ -29,24 +29,24 @@ const appWindow = argv.includes('--app-window');
 const noOpen = argv.includes('--no-open') && !appWindow;
 const here = dirname(fileURLToPath(import.meta.url));
 // Developer mode only from a source checkout (never from the local install), see devmode.js.
-const wantDev = argv.includes('--dev') || process.env.MONEYCASH_DEV === '1';
+const wantDev = argv.includes('--dev') || process.env.FINORA_DEV === '1';
 const dev = devModeAllowed(wantDev, join(here, '..'));
-if (wantDev && !dev) process.stderr.write('MoneyCash: developer mode is available only from the source folder; starting normally.\n');
+if (wantDev && !dev) process.stderr.write('Finora: developer mode is available only from the source folder; starting normally.\n');
 if (!dev) {
-  delete process.env.MONEYCASH_DATA_DIR;
-  delete process.env.MONEYCASH_SMOKE_TEST;
+  delete process.env.FINORA_DATA_DIR;
+  delete process.env.FINORA_SMOKE_TEST;
 }
 
 const config = await import('./config.js');
 const fail = (msg) => { process.stderr.write(`${msg}\n`); process.exit(1); };
 
 if (!dev && config.isUnderOneDrive(here)) {
-  fail('MoneyCash לא יפעל מתוך תיקייה שמסונכרנת ל-OneDrive. התקן אותו עם scripts\\install-local.ps1, '
+  fail('Finora לא יפעל מתוך תיקייה שמסונכרנת ל-OneDrive. התקן אותו עם scripts\\install-local.ps1, '
     + 'או הפעל במצב פיתוח (npm start -- --dev).');
 }
 
 // Never resolve config files (puppeteer, etc.) relative to wherever the user started us.
-try { process.chdir(config.dataDir()); } catch (e) { fail(`MoneyCash: ${e.message}`); }
+try { process.chdir(config.dataDir()); } catch (e) { fail(`Finora: ${e.message}`); }
 
 const { log } = await import('./log.js');
 const { finishPendingWipe } = await import('./wipe.js');
@@ -80,15 +80,15 @@ async function handOffOrReplace() {
   } catch { /* treat as gone */ }
   if (!isNode) return;
   if (await requestShow(join(config.dataDir(), 'run'))) {
-    log.info('another MoneyCash is running: it opens the window');
+    log.info('another Finora is running: it opens the window');
     process.exit(0);
   }
   // The recorded pid may have been reused by an unrelated node.exe since: kill only our own server.
   if (!isOurServerCommandLine(commandLineOf(pid), fileURLToPath(import.meta.url))) {
-    log.warn('the recorded MoneyCash process is gone (pid reused by another program): not touching it');
+    log.warn('the recorded Finora process is gone (pid reused by another program): not touching it');
     return;
   }
-  log.warn('the running MoneyCash did not answer: replacing it');
+  log.warn('the running Finora did not answer: replacing it');
   // The whole tree: its sync worker, the worker's Chrome and its Edge window. Killing only node left
   // a scrape Chrome holding the connection's profile (the next sync then failed) and an old window.
   try {
@@ -142,7 +142,7 @@ if (argv.includes('--reset-data')) {
   const { wipeAllData } = await import('./wipe.js');
   if (!keys.hasKeyFile() || (() => { try { keys.ensureKey(); return false; } catch { return true; } })()) {
     await wipeAllData();
-    process.stdout.write('הנתונים הישנים נמחקו. MoneyCash יתחיל כהתקנה חדשה.\n');
+    process.stdout.write('הנתונים הישנים נמחקו. Finora יתחיל כהתקנה חדשה.\n');
   } else {
     fail('הנתונים נפתחים כרגיל במחשב הזה, ולכן לא נמחק דבר. למחיקת הכול השתמש ב"מחיקת כל הנתונים" בהגדרות.');
   }
@@ -166,7 +166,7 @@ try {
   });
 } catch (e) {
   if (e.code === 'EADDRINUSE') {
-    fail(`הפורט ${config.DEFAULT_PORT} כבר תפוס. ייתכן ש-MoneyCash כבר פועל (או תוכנה אחרת משתמשת בפורט). `
+    fail(`הפורט ${config.DEFAULT_PORT} כבר תפוס. ייתכן ש-Finora כבר פועל (או תוכנה אחרת משתמשת בפורט). `
       + 'סגור אותו ונסה שוב, או הפעל עם PORT=<מספר אחר>.');
   }
   if (e.code === 'KEY_UNAVAILABLE') {

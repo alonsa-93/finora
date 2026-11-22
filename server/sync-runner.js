@@ -16,8 +16,8 @@ export function workerEnv() {
     'ProgramFiles', 'ProgramFiles(x86)', 'ProgramW6432', 'COMPUTERNAME', 'USERNAME', 'HOMEDRIVE', 'HOMEPATH', 'TZ']) {
     if (process.env[k] !== undefined) env[k] = process.env[k];
   }
-  env.MONEYCASH_DATA_DIR = dataDir();
-  env.MONEYCASH_QUIET = '1';
+  env.FINORA_DATA_DIR = dataDir();
+  env.FINORA_QUIET = '1';
   return env;
 }
 

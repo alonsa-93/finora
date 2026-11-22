@@ -1,7 +1,7 @@
-MoneyCash - third-party software notices
+Finora - third-party software notices
 ============================================================
-MoneyCash includes the following open-source components. Electron and Chromium notices are in
-LICENSE.electron.txt and LICENSES.chromium.html next to MoneyCash.exe.
+Finora includes the following open-source components. Electron and Chromium notices are in
+LICENSE.electron.txt and LICENSES.chromium.html next to Finora.exe.
 
 ------------------------------------------------------------
 @puppeteer/browsers@3.2.7  (Apache-2.0)

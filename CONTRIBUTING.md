@@ -1,6 +1,6 @@
-# Contributing to MoneyCash
+# Contributing to Finora
 
-Thanks for your interest in improving MoneyCash.
+Thanks for your interest in improving Finora.
 
 ## Before you start
 - For a bug, open an issue with the steps to reproduce it, what you expected, and what happened.
@@ -15,7 +15,7 @@ Thanks for your interest in improving MoneyCash.
 4. `npm test` must pass before you open a pull request. Add a test for any bug you fix.
 
 ## Ground rules
-- MoneyCash is read-only towards the banks. Changes that perform actions on an account will not be accepted.
+- Finora is read-only towards the banks. Changes that perform actions on an account will not be accepted.
 - Nothing may leave the user's computer except the sync with the banks and card companies themselves.
 - Never log credentials, IDs or full account numbers; `server/errors.js` scrubs them, keep it that way.
 - The interface is Hebrew-first and right-to-left. Keep new screens readable in light and dark themes.

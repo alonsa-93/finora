@@ -1,4 +1,4 @@
-// Generates the original MoneyCash app icon (no external tools): a rounded teal square with three
+// Generates the original Finora app icon (no external tools): a rounded teal square with three
 // rising white bars and a coin. Writes electron/assets/icon.png (512), icon.ico (16-256, PNG
 // entries) and tray.png / tray@2x.png. Run: node scripts/make-icon.mjs
 import { deflateSync } from 'node:zlib';

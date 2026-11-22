@@ -1,15 +1,15 @@
 {
-  "name": "moneycash",
-  "version": "1.0.0",
+  "name": "finora",
+  "version": "1.1.0",
   "private": true,
-  "description": "MoneyCash - local-only personal finance dashboard for Israeli banks and credit cards",
-  "author": "MoneyCash",
+  "description": "Finora - All your money. One clear picture. A local-only personal finance dashboard for Israeli banks and credit cards",
+  "author": "Finora",
   "repository": {
     "type": "git",
-    "url": "https://github.com/alonsa-93/moneycash.git"
+    "url": "https://github.com/alonsa-93/finora.git"
   },
-  "homepage": "https://github.com/alonsa-93/moneycash#readme",
-  "bugs": "https://github.com/alonsa-93/moneycash/issues",
+  "homepage": "https://github.com/alonsa-93/finora#readme",
+  "bugs": "https://github.com/alonsa-93/finora/issues",
   "type": "module",
   "main": "electron/main.mjs",
   "scripts": {
@@ -36,9 +36,9 @@
     "electron-builder": "26.18.0"
   },
   "build": {
-    "appId": "com.moneycash.app",
-    "productName": "MoneyCash",
-    "copyright": "MoneyCash",
+    "appId": "com.finora.app",
+    "productName": "Finora",
+    "copyright": "Finora",
     "directories": {
       "output": "dist",
       "buildResources": "electron/assets"
@@ -89,12 +89,12 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "MoneyCash",
-      "artifactName": "MoneyCash-Setup-${version}.${ext}",
+      "shortcutName": "Finora",
+      "artifactName": "Finora-Setup-${version}.${ext}",
       "include": "installer.nsh"
     },
     "portable": {
-      "artifactName": "MoneyCash-${version}-portable.${ext}"
+      "artifactName": "Finora-${version}-portable.${ext}"
     },
     "extraFiles": [
       {

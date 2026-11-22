@@ -1,4 +1,4 @@
-// Thin client for the MoneyCash JSON API (see docs/API.md).
+// Thin client for the Finora JSON API (see docs/API.md).
 
 export class ApiError extends Error {
   constructor(message, { status = 0, code = 'NETWORK' } = {}) {
@@ -9,7 +9,7 @@ export class ApiError extends Error {
 }
 
 const FALLBACK = {
-  NETWORK: 'אין חיבור לשרת של MoneyCash. כדאי לוודא שהיישום פועל במחשב ולנסות שוב.',
+  NETWORK: 'אין חיבור לשרת של Finora. כדאי לוודא שהיישום פועל במחשב ולנסות שוב.',
   DEFAULT: 'משהו השתבש. אפשר לנסות שוב.',
 };
 
@@ -30,13 +30,13 @@ export const setLens = (l) => { LENS = ['all', 'business', 'private'].includes(l
 const LENS_PATHS = new Set(['/transactions', '/summary', '/insights', '/position', '/recurring', '/annual',
   '/annual/insights', '/price-trends', '/chat']);
 
-// The per-launch API token, sent in X-MoneyCash on every /api call next to the cookie (the cookie
+// The per-launch API token, sent in X-Finora on every /api call next to the cookie (the cookie
 // alone also reaches other 127.0.0.1 ports; this token never leaves our origin). Desktop: from the
 // preload. Browser / Edge window: auth.js keeps it in sessionStorage (this tab only, never a URL).
 const TOKEN_KEY = 'mc_api'; // also written by auth.js
 let token = '';
 function apiToken() {
-  if (!token) token = String(window.moneycash?.apiToken || '');
+  if (!token) token = String(window.finora?.apiToken || '');
   if (!token) { try { token = sessionStorage.getItem(TOKEN_KEY) || ''; } catch { token = ''; } }
   return token;
 }
@@ -55,7 +55,7 @@ async function request(method, path, { query, body, signal } = {}) {
   // An edit of one row answers with the row as the current lens shows it.
   const lensed = LENS_PATHS.has(path) || (method === 'PATCH' && path.startsWith('/transactions/'));
   if (LENS !== 'all' && lensed) query = { ...(query || {}), lens: LENS };
-  const headers = { Accept: 'application/json', 'X-MoneyCash': apiToken() };
+  const headers = { Accept: 'application/json', 'X-Finora': apiToken() };
   const init = { method, headers, signal, credentials: 'same-origin', cache: 'no-store' };
   if (method !== 'GET') {
     headers['Content-Type'] = 'application/json';
@@ -81,7 +81,7 @@ export async function downloadApiFile(href) {
   if (typeof href !== 'string' || !href.startsWith('/api/')) throw new ApiError(FALLBACK.DEFAULT);
   let res;
   try {
-    res = await fetch(href, { headers: { 'X-MoneyCash': apiToken() }, credentials: 'same-origin', cache: 'no-store' });
+    res = await fetch(href, { headers: { 'X-Finora': apiToken() }, credentials: 'same-origin', cache: 'no-store' });
   } catch { throw new ApiError(FALLBACK.NETWORK); }
   if (!res.ok) throw await errorOf(res);
   const blob = await res.blob();
@@ -89,7 +89,7 @@ export async function downloadApiFile(href) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = m ? m[1] : 'moneycash.csv';
+  a.download = m ? m[1] : 'finora.csv';
   a.hidden = true;
   document.body.append(a);
   a.click();

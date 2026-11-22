@@ -1,7 +1,7 @@
 // CLI / browser-mode login: the server prints/opens http://127.0.0.1:<port>/auth#<bootstrap token>.
 // The fragment never reaches the server logs or a Referer; /assets/js/auth.js POSTs it once to
 // /api/session, which answers with the HttpOnly SameSite=Strict mc_auth cookie and, in the body, the
-// API token for X-MoneyCash (config.js). The bootstrap token
+// API token for X-Finora (config.js). The bootstrap token
 // is separate from the session token, single-use, compared in constant time, burnt after 5 wrong
 // attempts, and void after BOOTSTRAP_TTL_MS (a link left in a terminal or history stays useless).
 import { randomBytes, timingSafeEqual } from 'node:crypto';
@@ -37,7 +37,7 @@ export function consumeBootstrap(given, now = Date.now()) {
 }
 
 export function bootstrapPage() {
-  return '<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><title>MoneyCash</title>'
+  return '<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><title>Finora</title>'
     + '<meta name="viewport" content="width=device-width, initial-scale=1"></head>'
-    + '<body><p id="msg">מתחבר ל-MoneyCash…</p><script src="/assets/js/auth.js"></script></body></html>';
+    + '<body><p id="msg">מתחבר ל-Finora…</p><script src="/assets/js/auth.js"></script></body></html>';
 }

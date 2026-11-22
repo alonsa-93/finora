@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Suggest an idea for MoneyCash
+about: Suggest an idea for Finora
 labels: enhancement
 ---
 

@@ -623,7 +623,7 @@ export function mountTransactions(container, params) {
     const text = Math.abs(t.amount).toFixed(2);
     const back = document.activeElement;
     let ok = false;
-    const desk = window.moneycash?.clipboard;
+    const desk = window.finora?.clipboard;
     if (desk?.writeText) {
       // Desktop: the renderer has no clipboard permission; main writes it after validating (preload).
       try { ok = (await desk.writeText(text)) === true; } catch { ok = false; }

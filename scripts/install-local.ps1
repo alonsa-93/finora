@@ -1,17 +1,17 @@
-# Installs MoneyCash for daily use OUTSIDE OneDrive:
-#   %LOCALAPPDATA%\Programs\MoneyCash\runtime\  - the stock Electron runtime (electron.exe), used by the
+# Installs Finora for daily use OUTSIDE OneDrive:
+#   %LOCALAPPDATA%\Programs\Finora\runtime\  - the stock Electron runtime (electron.exe), used by the
 #                                                Electron window and "Start with Windows"
-#   %LOCALAPPDATA%\Programs\MoneyCash\app\      - electron\, server\ (no tests), web\, package.json and
+#   %LOCALAPPDATA%\Programs\Finora\app\      - electron\, server\ (no tests), web\, package.json and
 #                                                the PRODUCTION node_modules only
 # The folder gets a protected ACL (current user + SYSTEM + Administrators, no inherited entries), and
 # the Desktop / Start-menu shortcuts are (re)created to point there. Your data stays where it is
-# (%LOCALAPPDATA%\MoneyCash) and is not touched by this script.
+# (%LOCALAPPDATA%\Finora) and is not touched by this script.
 #
 # Usage (from the project folder):
 #   powershell -ExecutionPolicy Bypass -File scripts\install-local.ps1
 # Options: -Destination <dir>  -NoShortcuts  (for a trial install somewhere else)
 param(
-  [string]$Destination = (Join-Path $env:LOCALAPPDATA 'Programs\MoneyCash'),
+  [string]$Destination = (Join-Path $env:LOCALAPPDATA 'Programs\Finora'),
   [switch]$NoShortcuts
 )
 $ErrorActionPreference = 'Stop'
@@ -35,7 +35,15 @@ if (-not (Test-Path (Join-Path $electronDist 'electron.exe'))) { throw "Electron
 # Refuse to replace files of a running local install.
 $running = Get-CimInstance Win32_Process -Filter "Name='electron.exe'" |
   Where-Object { $_.ExecutablePath -and $_.ExecutablePath.StartsWith($Destination, [StringComparison]::OrdinalIgnoreCase) }
-if ($running) { throw 'MoneyCash is running from the install folder. Quit it (tray icon > Exit) and run this again.' }
+if ($running) { throw 'Finora is running from the install folder. Quit it (tray icon > Exit) and run this again.' }
+
+# The app was called MoneyCash before 1.1. Its install is removed after a successful install below;
+# it must not be running now (it would also keep the data folder from moving to its new name).
+$legacy = Join-Path $env:LOCALAPPDATA 'Programs\MoneyCash'
+$legacyRunning = Get-CimInstance Win32_Process -Filter "Name='electron.exe' OR Name='node.exe'" |
+  Where-Object { ($_.ExecutablePath -and $_.ExecutablePath.StartsWith($legacy, [StringComparison]::OrdinalIgnoreCase)) -or
+                 ($_.CommandLine -and $_.CommandLine.IndexOf($legacy, [StringComparison]::OrdinalIgnoreCase) -ge 0) }
+if ($legacyRunning) { throw 'MoneyCash (the earlier name of Finora) is running. Close its window and run this again.' }
 
 # Production dependency list straight from npm (no dev packages, no electron-builder).
 Push-Location $root
@@ -44,16 +52,16 @@ try {
   if ($LASTEXITCODE -ne 0 -or -not $prod) { throw "'npm ls --omit=dev' failed; run 'npm ci' first." }
 } finally { Pop-Location }
 
-# Folders this script may delete: absent, empty, an earlier install (app\moneycash-install.json), or
+# Folders this script may delete: absent, empty, an earlier install (app\finora-install.json), or
 # the staging folder it created itself (marked with $stageMark). Anything else stops the script.
-$stageMark = '.moneycash-staging'
+$stageMark = '.finora-staging'
 function Assert-SafeToReplace([string]$dir, [switch]$Stage) {
   if (-not (Test-Path -LiteralPath $dir)) { return }
-  if (-not (Test-Path -LiteralPath $dir -PathType Container)) { throw "Refusing to replace '$dir': it is a file, not a MoneyCash folder." }
+  if (-not (Test-Path -LiteralPath $dir -PathType Container)) { throw "Refusing to replace '$dir': it is a file, not a Finora folder." }
   if (-not (Get-ChildItem -LiteralPath $dir -Force | Select-Object -First 1)) { return }
-  if (Test-Path -LiteralPath (Join-Path $dir 'app\moneycash-install.json')) { return }
+  if (Test-Path -LiteralPath (Join-Path $dir 'app\finora-install.json')) { return }
   if ($Stage -and (Test-Path -LiteralPath (Join-Path $dir $stageMark))) { return }
-  throw "Refusing to delete '$dir': it is not empty and is not a MoneyCash install. Choose another -Destination or empty it yourself."
+  throw "Refusing to delete '$dir': it is not empty and is not a Finora install. Choose another -Destination or empty it yourself."
 }
 
 $stage = "$Destination.new"
@@ -75,10 +83,10 @@ foreach ($d in 'electron', 'server', 'web') {
 }
 Copy-Item (Join-Path $root 'package.json') (Join-Path $stage 'app\package.json')
 Copy-Item (Join-Path $root 'package-lock.json') (Join-Path $stage 'app\package-lock.json')
-# Install marker: developer mode (--dev / MONEYCASH_DEV=1) is refused wherever this file exists
+# Install marker: developer mode (--dev / FINORA_DEV=1) is refused wherever this file exists
 # (server/devmode.js), so the installed copy can never be switched into dev mode.
 $marker = @{ installedBy = 'install-local.ps1'; installedAt = (Get-Date).ToUniversalTime().ToString('o') } | ConvertTo-Json
-[IO.File]::WriteAllText((Join-Path $stage 'app\moneycash-install.json'), $marker, (New-Object Text.UTF8Encoding $false))
+[IO.File]::WriteAllText((Join-Path $stage 'app\finora-install.json'), $marker, (New-Object Text.UTF8Encoding $false))
 
 Write-Output "Copying $(@($prod).Count) production packages..."
 $nmRoot = Join-Path $root 'node_modules'
@@ -118,4 +126,19 @@ try {
 }
 
 if (-not $NoShortcuts) { & (Join-Path $PSScriptRoot 'create-shortcut.ps1') -InstallDir $Destination }
+
+# Remove the pre-1.1 install (MoneyCash), its shortcuts and its "Start with Windows" entry.
+# Only a folder this script created (it holds app\moneycash-install.json) is deleted.
+if ((Test-Path -LiteralPath (Join-Path $legacy 'app\moneycash-install.json')) -and ($legacy -ne $Destination)) {
+  Remove-Item -LiteralPath $legacy -Recurse -Force
+  Write-Output "Removed the earlier install: $legacy"
+}
+$oldLinks = @((Join-Path ([Environment]::GetFolderPath('Programs')) 'MoneyCash.lnk'),
+              (Join-Path ([Environment]::GetFolderPath('Desktop')) 'MoneyCash.lnk'))
+foreach ($l in $oldLinks) { if (Test-Path -LiteralPath $l) { Remove-Item -LiteralPath $l -Force } }
+$runKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run'
+if (Get-ItemProperty -Path $runKey -Name 'MoneyCash' -ErrorAction SilentlyContinue) {
+  Remove-ItemProperty -Path $runKey -Name 'MoneyCash'
+  Write-Output 'The old "Start with Windows" entry was removed. Turn it on again in Settings if you want it.'
+}
 Write-Output "Installed to $Destination"

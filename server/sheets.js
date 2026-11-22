@@ -1,7 +1,7 @@
 // Google Sheets as a source of transactions (docs/API.md, "Google Sheets and dashboards").
 //
 // The user pastes the sheet's link. The sheet must be shared "anyone with the link can view" (or
-// published to the web): MoneyCash downloads it as CSV, with no Google sign-in. The link is a secret
+// published to the web): Finora downloads it as CSV, with no Google sign-in. The link is a secret
 // (anyone holding it can read the sheet), so it is stored encrypted like bank credentials.
 // Network: only https://docs.google.com, and the googleusercontent.com download host Google
 // redirects to. At most 5 MB, 20 s. Pure parsing below; fetchSheet() is the only I/O.
@@ -231,7 +231,7 @@ export async function fetchSheet(link, { fetchImpl = fetch, timeoutMs = TIMEOUT_
   }
 }
 
-/** Stable key of a sheet row, so tags set in MoneyCash survive a re-import (same date, amount, text, n-th). */
+/** Stable key of a sheet row, so tags set in Finora survive a re-import (same date, amount, text, n-th). */
 export function sheetRowKeys(rows) {
   const seen = new Map();
   return rows.map((r) => {

@@ -1,9 +1,10 @@
 <div align="center">
 
-# 💰 MoneyCash
+# 💰 Finora
 
-### כל הכסף שלך, במקום אחד, רק במחשב שלך
-**Your banks and credit cards in one dashboard. Local-only, encrypted, read-only.**
+### All your money. One clear picture.
+**כל הכסף שלך, תמונה אחת ברורה. רק במחשב שלך.**<br>
+Your banks and credit cards in one dashboard. Local-only, encrypted, read-only.
 
 <p>
   <img src="https://img.shields.io/badge/License-GPLv3-blue?style=for-the-badge" alt="License: GPL v3">
@@ -11,10 +12,10 @@
   <img src="https://img.shields.io/badge/Node.js-5FA04E?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js">
   <img src="https://img.shields.io/badge/Electron-47848F?style=for-the-badge&logo=electron&logoColor=white" alt="Electron">
   <img src="https://img.shields.io/badge/Data-100%25%20local-2ea44f?style=for-the-badge" alt="Data: 100% local">
-  <a href="https://github.com/alonsa-93/moneycash/actions/workflows/ci.yml"><img src="https://github.com/alonsa-93/moneycash/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/alonsa-93/finora/actions/workflows/ci.yml"><img src="https://github.com/alonsa-93/finora/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
 </p>
 
-<img src="docs/screenshots/readme-overview-light.jpg" alt="MoneyCash overview" width="90%">
+<img src="docs/screenshots/readme-overview-light.jpg" alt="Finora overview" width="90%">
 
 </div>
 
@@ -24,7 +25,7 @@
 
 ## 📖 בעברית
 
-**MoneyCash** הוא דשבורד מקומי ל-Windows שמחבר את חשבונות הבנק וכרטיסי האשראי שלך ומראה בבירור איפה אתה עומד. הוא רק קורא נתונים, לא מבצע שום פעולה בחשבון, והכול נשמר מוצפן במחשב שלך בלבד.
+**Finora** הוא דשבורד מקומי ל-Windows שמחבר את חשבונות הבנק וכרטיסי האשראי שלך ומראה בבירור איפה אתה עומד. הוא רק קורא נתונים, לא מבצע שום פעולה בחשבון, והכול נשמר מוצפן במחשב שלך בלבד.
 
 - 🏦 **18 בנקים וחברות אשראי** בישראל, דרך `israeli-bank-scrapers`
 - 📊 **דשבורד** עם היתרה בבנק עכשיו, חיובי האשראי הקרובים, מגמות ודגלים אדומים עם "מה לעשות"
@@ -38,7 +39,7 @@
 
 ## 🌍 In English
 
-**MoneyCash** is a local Windows dashboard for Israeli bank accounts and credit cards. It only reads data, never acts on an account, and keeps everything encrypted on your own computer.
+**Finora** is a local Windows dashboard for Israeli bank accounts and credit cards. It only reads data, never acts on an account, and keeps everything encrypted on your own computer.
 
 | | |
 |---|---|
@@ -67,8 +68,8 @@
 Requirements: Windows 10 or 11 and [Node.js](https://nodejs.org) 24 or newer.
 
 ```powershell
-git clone https://github.com/alonsa-93/moneycash.git
-cd moneycash
+git clone https://github.com/alonsa-93/finora.git
+cd finora
 npm ci
 npm start
 ```
@@ -81,16 +82,16 @@ When you connect a real bank or card, the demo closes and your own data takes it
 The app must not run from a OneDrive folder. Anything that can change files in OneDrive could change the code that handles bank credentials, so at start-up the app refuses to run from there.
 1. In the project folder: `npm ci`.
 2. `powershell -ExecutionPolicy Bypass -File scripts\install-local.ps1`. It:
-   - copies the app (`app\`) and the stock Electron runtime (`runtime\`) to `%LOCALAPPDATA%\Programs\MoneyCash`;
+   - copies the app (`app\`) and the stock Electron runtime (`runtime\`) to `%LOCALAPPDATA%\Programs\Finora`;
    - locks that folder (current user + SYSTEM + Administrators only);
-   - creates the **MoneyCash** shortcuts in the Start menu and on the Desktop (the Desktop shortcut is
+   - creates the **Finora** shortcuts in the Start menu and on the Desktop (the Desktop shortcut is
      skipped when the Desktop folder is synced by OneDrive).
 
    Run it again after every update.
    The shortcut starts the server with the signed Node.js in Program Files and opens the dashboard in a
    Microsoft Edge app window (`server/index.js --app-window`). Smart App Control judges the unsigned
    electron.exe by reputation and may block it; node.exe and msedge.exe are signed.
-   Closing the window stops MoneyCash (after any running sync finishes).
+   Closing the window stops Finora (after any running sync finishes).
 3. "Start with Windows" and the tray icon belong to the Electron desktop window (the installed
    `runtime\electron.exe` running `app\`, or `npm run dev`): turn it on in Settings or from the tray icon,
    and Windows starts that Electron runtime at sign-in. The Edge app window opened by the shortcut has no
@@ -103,18 +104,18 @@ The app must not run from a OneDrive folder. Anything that can change files in O
 - `npm start`: server + default browser, opened through a one-time login link. Developer mode.
 - `npm test` · `npm run audit` · `npm run notices` · `npm run dist` (builds and writes `dist\SHA256SUMS.txt`).
 - Install dependencies with `npm ci` only. `.npmrc` enforces exact versions, `engine-strict` and a 7-day minimum release age.
-- `MONEYCASH_DATA_DIR` and `MONEYCASH_SMOKE_TEST` work only in developer mode.
-- `MONEYCASH_PORT` (or `PORT`) sets the server port for `server/index.js` (default 4580).
-  `MONEYCASH_QUIET=1` keeps log lines off the console (they still go to the log file).
-- Developer mode (`--dev` / `MONEYCASH_DEV=1`) is honoured only from a source checkout (`server/devmode.js`):
-  never where `moneycash-install.json` exists (written by `install-local.ps1`), never under
+- `FINORA_DATA_DIR` and `FINORA_SMOKE_TEST` work only in developer mode.
+- `FINORA_PORT` (or `PORT`) sets the server port for `server/index.js` (default 4580).
+  `FINORA_QUIET=1` keeps log lines off the console (they still go to the log file).
+- Developer mode (`--dev` / `FINORA_DEV=1`) is honoured only from a source checkout (`server/devmode.js`):
+  never where `finora-install.json` exists (written by `install-local.ps1`), never under
   `%LOCALAPPDATA%\Programs`, and only next to a `.git` entry or the dev-only `node_modules/electron-builder`.
   The local install ignores both switches.
 - Browser mode names its session cookie per port (`mc_auth_<port>`), so two instances on different
   ports never share a login.
 
 ## 🔐 Data and security
-- Data lives in `%LOCALAPPDATA%\MoneyCash`, a folder that only you and SYSTEM can open.
+- Data lives in `%LOCALAPPDATA%\Finora`, a folder that only you and SYSTEM can open.
 - Data is stored as AES-256-GCM encrypted snapshots, with one data key wrapped by Windows DPAPI.
 - Bank credentials are additionally sealed per connection.
 - Only the last 4 digits of account numbers are stored.
@@ -124,7 +125,7 @@ The app must not run from a OneDrive folder. Anything that can change files in O
 - If Windows can no longer open the key (for example after a password reset by an administrator), the app offers to start over; data can be pulled again about 12 months back.
 
 ### Residual risk of the local install (unsigned, no fuses)
-The local install has two ways to run, and neither is a signed MoneyCash build:
+The local install has two ways to run, and neither is a signed Finora build:
 - **The shortcut** runs `server/index.js --app-window` with the signed Node.js from Program Files and shows
   the dashboard in a Microsoft Edge app window with its own profile. Every `/api` call needs a
   per-launch session cookie, and the server listens on 127.0.0.1 only.
@@ -144,7 +145,7 @@ What the app does about the Electron runtime:
 
 For the shortcut, the server is an ordinary Node.js process, and Node.js honours `NODE_OPTIONS` and
 debugger switches. A `.lnk` shortcut cannot clear environment variables, so in both modes anyone who can
-set your user environment or start processes as you can attach to MoneyCash. That person can already
+set your user environment or start processes as you can attach to Finora. That person can already
 read your files, so it is not a new boundary.
 
 See `docs/API.md` (API contract and security model) and `docs/DESIGN.md` (design and keyboard shortcuts).
@@ -155,5 +156,5 @@ Issues and pull requests are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md).
 Found a security problem? Please report it privately, as described in [SECURITY.md](SECURITY.md).
 
 ## 📄 License
-MoneyCash is free software under the GNU General Public License v3.0. See [LICENSE](LICENSE).
+Finora is free software under the GNU General Public License v3.0. See [LICENSE](LICENSE).
 Third-party components keep their own licenses; see `THIRD-PARTY-NOTICES.txt`.

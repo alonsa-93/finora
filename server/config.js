@@ -1,6 +1,6 @@
 // Central configuration: paths, port, version. Data never lives in the project folder
-// (it may sit in a synced folder) - it goes to %LOCALAPPDATA%\MoneyCash by default.
-import { readFileSync, mkdirSync } from 'node:fs';
+// (it may sit in a synced folder) - it goes to %LOCALAPPDATA%\Finora by default.
+import { readFileSync, mkdirSync, existsSync, renameSync } from 'node:fs';
 import { join, dirname, resolve, isAbsolute } from 'node:path';
 import { protectDir } from './acl.js';
 import { fileURLToPath } from 'node:url';
@@ -18,7 +18,7 @@ function parsePort(v) {
   const n = Number(v);
   return Number.isInteger(n) && n > 1023 && n < 65536 ? n : null;
 }
-export const DEFAULT_PORT = parsePort(process.env.PORT) ?? parsePort(process.env.MONEYCASH_PORT) ?? 4580;
+export const DEFAULT_PORT = parsePort(process.env.PORT) ?? parsePort(process.env.FINORA_PORT) ?? 4580;
 export const HOST = '127.0.0.1';
 
 // The actual listening port can change at runtime (Electron picks a free port if 4580 is taken),
@@ -36,14 +36,14 @@ export const appUrl = () => `http://127.0.0.1:${port}/`;
 // Per-launch API secret, delivered to the window as an HttpOnly cookie. startServer refuses to run
 // without one; null only with the explicit test-only switch below.
 // Cookies are not port-bound (RFC 6265): every server on 127.0.0.1 would receive a cookie set by
-// another. `__Host-` needs https, so the name carries the port instead: a MoneyCash instance on a
+// another. `__Host-` needs https, so the name carries the port instead: a Finora instance on a
 // different port neither sends nor accepts this one.
 export const authCookieName = () => `mc_auth_${port}`;
 let authToken = null;
 // Second factor, bound to our origin. The browser still sends the cookie to any other listener on
 // 127.0.0.1 the user visits, which could replay it from a non-browser client. This token reaches the
 // page only in a response body (POST /api/session, or the Electron preload) and goes back in the
-// X-MoneyCash header; another origin can never read it. A new one with every auth token.
+// X-Finora header; another origin can never read it. A new one with every auth token.
 let apiToken = null;
 let noAuthForTests = false;
 export const getAuthToken = () => authToken;
@@ -73,21 +73,35 @@ export function isUnderOneDrive(p) {
   return /\\onedrive( - [^\\]+)?\\/i.test(`${target}\\`);
 }
 
-/** Validate an explicit data-dir override (MONEYCASH_DATA_DIR): local, absolute, not synced. */
+/** Validate an explicit data-dir override (FINORA_DATA_DIR): local, absolute, not synced. */
 export function checkDataDirOverride(p) {
   if (!isAbsolute(p) || /^\\\\|^\/\//.test(p)) return 'must be a local absolute path (no UNC)';
   if (isUnderOneDrive(p)) return 'must not be inside OneDrive';
   return null;
 }
 
+/**
+ * Default data folder under %LOCALAPPDATA%. The app was called MoneyCash before 1.1: its folder is
+ * moved to the new name once. If the move fails (e.g. an old copy still has files open), the old
+ * folder keeps being used so no data is ever left behind; the move is retried on the next start.
+ */
+export function defaultDataDir(localAppData) {
+  const dir = join(localAppData, 'Finora');
+  const legacy = join(localAppData, 'MoneyCash');
+  if (!existsSync(dir) && existsSync(legacy)) {
+    try { renameSync(legacy, dir); } catch { return legacy; }
+  }
+  return dir;
+}
+
 let dataDirCache = null;
 export function dataDir() {
-  const override = process.env.MONEYCASH_DATA_DIR;
-  const base = override || join(process.env.LOCALAPPDATA || join(homedir(), 'AppData', 'Local'), 'MoneyCash');
+  const override = process.env.FINORA_DATA_DIR;
+  const base = override || defaultDataDir(process.env.LOCALAPPDATA || join(homedir(), 'AppData', 'Local'));
   if (dataDirCache === base) return base;
   if (override) {
     const problem = checkDataDirOverride(override);
-    if (problem) throw new Error(`MONEYCASH_DATA_DIR ${problem}`);
+    if (problem) throw new Error(`FINORA_DATA_DIR ${problem}`);
   }
   mkdirSync(base, { recursive: true });
   // user + SYSTEM only, no inheritance (on creation and on every start). A failure does not stop the

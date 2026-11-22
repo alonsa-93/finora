@@ -152,7 +152,7 @@ test('secrets: scraper errors are scrubbed before reaching the log, lastError an
   // A thrown error (crash inside the scraper) as well.
   await runSync(connId, async (creds) => { throw new Error(`boom ${creds.username}/${creds.password}`); });
 
-  const logText = readFileSync(join(DATA_DIR, 'logs', 'moneycash.log'), 'utf8');
+  const logText = readFileSync(join(DATA_DIR, 'logs', 'finora.log'), 'utf8');
   assert.match(logText, /sync connection=\d+ company=max failed/, 'failure was logged');
   assertNoSecret(logText, 'log file');
   assert.ok(!logText.includes('000000018') && !logText.includes('a.b@x.co'), 'ids / e-mails scrubbed from log');
@@ -194,7 +194,7 @@ test('secrets: JSON-escaped / URL-encoded echoes of a credential are scrubbed fr
     errorType: 'GENERIC',
     errorMessage: `form state ${JSON.stringify(creds)} url /login?u=${encodeURIComponent(creds.username)}&p=${encodeURIComponent(creds.password)}`,
   }));
-  const logText = readFileSync(join(DATA_DIR, 'logs', 'moneycash.log'), 'utf8');
+  const logText = readFileSync(join(DATA_DIR, 'logs', 'finora.log'), 'utf8');
   for (const s of ['mcPassSentinel', 'mcUserSentinel']) assert.ok(!logText.includes(s), `log contains ${s}`);
   assertNoSecret(String(connRow(connId).last_error), 'last_error column');
 });

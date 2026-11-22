@@ -16,6 +16,6 @@ const argv = process.argv.slice(1);
 const badArg = argv.find((a) => /^--?(inspect|remote-debugging|js-flags|debug)/i.test(String(a)));
 const nodeOptions = String(process.env.NODE_OPTIONS || '').trim();
 if (process.env.ELECTRON_RUN_AS_NODE || nodeOptions || badArg) {
-  try { process.stderr.write('MoneyCash: refusing to start with debugging switches or NODE_OPTIONS.\n'); } catch { /* no console */ }
+  try { process.stderr.write('Finora: refusing to start with debugging switches or NODE_OPTIONS.\n'); } catch { /* no console */ }
   process.exit(1);
 }

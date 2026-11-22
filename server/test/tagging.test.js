@@ -7,8 +7,8 @@ import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-process.env.MONEYCASH_DATA_DIR = mkdtempSync(join(tmpdir(), 'moneycash-test-'));
-process.env.MONEYCASH_QUIET = '1';
+process.env.FINORA_DATA_DIR = mkdtempSync(join(tmpdir(), 'finora-test-'));
+process.env.FINORA_QUIET = '1';
 
 let db; let store; let ss; let biz; let repo; let setSetting;
 before(async () => {

@@ -1,4 +1,4 @@
-// "Delete all data": crypto-shred first (the wrapped data key), then every file MoneyCash keeps in
+// "Delete all data": crypto-shred first (the wrapped data key), then every file Finora keeps in
 // DATA_DIR. Without the key, any copy that survives elsewhere (restore points, backups, SSD remnants
 // of old snapshots) is undecryptable. Electron's own profile (DATA_DIR\electron) is cleared by the
 // shell, which also deletes the folder on the next start (it is locked while Electron runs).
@@ -32,7 +32,7 @@ export async function wipeAllData() {
     if (/\.(db|enc|1|tmp|json)$|\.db-(wal|shm|journal)$/i.test(name)) shredFile(p);
     rmTree(p);
   }
-  sweepScraperProfiles({ minAgeMs: 0 }); // MoneyCash's own run\scrape-* dirs only
+  sweepScraperProfiles({ minAgeMs: 0 }); // Finora's own run\scrape-* dirs only
   resetLog();
   mkdirSync(join(dir, 'logs'), { recursive: true });
   const left = readdirSync(dir).filter((n) => !KEEP.has(n) && n !== 'logs');

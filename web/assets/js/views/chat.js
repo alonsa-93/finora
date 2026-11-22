@@ -42,7 +42,7 @@ export function mountChat(container) {
   setWhere('chat');
 
   function head() {
-    return pageHead('שאלות', 'שאלות בעברית על הכסף שלך. התשובות מחושבות כאן במחשב מהנתונים של MoneyCash, ושום דבר לא יוצא ממנו.',
+    return pageHead('שאלות', 'שאלות בעברית על הכסף שלך. התשובות מחושבות כאן במחשב מהנתונים של Finora, ושום דבר לא יוצא ממנו.',
       history.length ? clearBtn : null);
   }
 

@@ -1,7 +1,7 @@
 // Shared helpers for the security regression suite (server/test/security-*.test.js).
 // Not a test file itself (does not match *.test.js).
 //
-// - isolates the data dir (fresh temp dir; never %LOCALAPPDATA%\MoneyCash)
+// - isolates the data dir (fresh temp dir; never %LOCALAPPDATA%\Finora)
 // - replaces israeli-bank-scrapers and puppeteer with in-memory stubs, so no browser is launched
 //   and no bank / card company is ever contacted
 // - starts the real server on 127.0.0.1 with a free port and offers a raw HTTP client that can
@@ -18,9 +18,9 @@ import { registerHooks } from 'node:module';
 import http from 'node:http';
 
 export function isolateDataDir() {
-  const dir = mkdtempSync(join(tmpdir(), 'moneycash-sec-test-'));
-  process.env.MONEYCASH_DATA_DIR = dir;
-  process.env.MONEYCASH_QUIET = '1';
+  const dir = mkdtempSync(join(tmpdir(), 'finora-sec-test-'));
+  process.env.FINORA_DATA_DIR = dir;
+  process.env.FINORA_QUIET = '1';
   return dir;
 }
 
@@ -101,7 +101,7 @@ export function request(port, method, path, opts = {}) {
 
 /** Headers a legitimate same-origin state-changing request from the dashboard carries. */
 export const jsonHeaders = (origin) => ({
-  'Content-Type': 'application/json', 'X-MoneyCash': '1', Origin: origin, 'Sec-Fetch-Site': 'same-origin',
+  'Content-Type': 'application/json', 'X-Finora': '1', Origin: origin, 'Sec-Fetch-Site': 'same-origin',
 });
 
 export async function waitForSyncIdle(isSyncing, timeoutMs = 20000) {

@@ -68,7 +68,7 @@ export function mountSettings(container, params) {
     if (syncAll) { syncAll.disabled = !state.connections.length; syncAll.lastChild.textContent = 'סנכרון של הכול'; }
     if (!state.connections.length) {
       lastSig = '';
-      mount(connBody, emptyState({ icon: 'bank', title: 'אין עדיין חיבורים', text: 'מחברים בנק או כרטיס אשראי, ו-MoneyCash מושך את התנועות ומסדר אותן.', small: true, level: 3 }));
+      mount(connBody, emptyState({ icon: 'bank', title: 'אין עדיין חיבורים', text: 'מחברים בנק או כרטיס אשראי, ו-Finora מושך את התנועות ומסדר אותן.', small: true, level: 3 }));
       return;
     }
     const items = new Map((state.sync?.items || []).map((i) => [i.connectionId, i]));
@@ -146,11 +146,11 @@ export function mountSettings(container, params) {
   }
 
   // The site asked for a one-time code: one login in a visible window of the site itself, where the
-  // user types the code. MoneyCash never sees the code.
+  // user types the code. Finora never sees the code.
   async function codeLogin(c) {
     const ok = await confirmDialog({
       title: 'התחברות עם קוד SMS',
-      message: `ייפתח חלון של האתר של ${c.companyName}. MoneyCash ימלא בו את שם המשתמש והסיסמה, ואז תקבל קוד ב-SMS. הקלד את הקוד בחלון של האתר, לא כאן. כשההתחברות תסתיים החלון ייסגר והתנועות יורדו. יש לך 5 דקות.`,
+      message: `ייפתח חלון של האתר של ${c.companyName}. Finora ימלא בו את שם המשתמש והסיסמה, ואז תקבל קוד ב-SMS. הקלד את הקוד בחלון של האתר, לא כאן. כשההתחברות תסתיים החלון ייסגר והתנועות יורדו. יש לך 5 דקות.`,
       extra: h('p', { class: 'insp-note' }, 'אם החלון לא קופץ, הוא בשורת המשימות. אחרי התחברות אחת כזו האתר בדרך כלל מזהה את המחשב, והסנכרון האוטומטי חוזר לעבוד בלי קוד.'),
       confirmLabel: 'לפתוח את החלון',
     });
@@ -317,8 +317,8 @@ export function mountSettings(container, params) {
 
   /* ---------- desktop app (Electron only) ---------- */
   function desktopSection() {
-    const ds = window.moneycash?.settings;
-    if (!window.moneycash?.isDesktop || !ds?.get) return null;
+    const ds = window.finora?.settings;
+    if (!window.finora?.isDesktop || !ds?.get) return null;
     const tray = h('input', { type: 'checkbox', role: 'switch', disabled: true });
     const login = h('input', { type: 'checkbox', role: 'switch', disabled: true });
     const msg = h('span', { class: 'hint', 'aria-live': 'polite' });
@@ -351,9 +351,10 @@ export function mountSettings(container, params) {
     const keys = h('button', { class: 'link', type: 'button' }, 'קיצורי מקלדת');
     keys.addEventListener('click', openShortcuts);
     return section('st-about', 'על התוכנה', null,
-      h('p', { class: 'st-about-line' }, 'גרסה ', h('bdi', { class: 'num' }, state.status?.version || window.moneycash?.version || ''), ' של MoneyCash. כל הנתונים נשמרים במחשב הזה בלבד, מוצפנים.'),
+      h('p', { class: 'st-about-line', dir: 'ltr' }, h('b', null, 'All your money. One clear picture.')),
+      h('p', { class: 'st-about-line' }, 'גרסה ', h('bdi', { class: 'num' }, state.status?.version || window.finora?.version || ''), ' של Finora. כל הנתונים נשמרים במחשב הזה בלבד, מוצפנים.'),
       state.status?.diskEncryption === 'off'
-        ? h('p', { class: 'st-demo-note st-disk-note' }, 'הצפנת הכונן (BitLocker או "הצפנת מכשיר") כבויה במחשב הזה. הנתונים של MoneyCash מוצפנים בכל מקרה, אבל כדאי להפעיל אותה דרך הגדרות Windows ← פרטיות ואבטחה ← הצפנת מכשיר, כדי להגן גם על שאר הקבצים אם המחשב יאבד.')
+        ? h('p', { class: 'st-demo-note st-disk-note' }, 'הצפנת הכונן (BitLocker או "הצפנת מכשיר") כבויה במחשב הזה. הנתונים של Finora מוצפנים בכל מקרה, אבל כדאי להפעיל אותה דרך הגדרות Windows ← פרטיות ואבטחה ← הצפנת מכשיר, כדי להגן גם על שאר הקבצים אם המחשב יאבד.')
         : null,
       keys);
   }
@@ -364,7 +365,7 @@ export function mountSettings(container, params) {
     btn.addEventListener('click', openWipeDialog);
     return h('section', { class: 'st-sec st-danger', 'aria-labelledby': 'st-danger' },
       h('div', { class: 'st-side' }, h('h2', { id: 'st-danger' }, 'אזור מסוכן'),
-        h('p', { class: 'st-desc' }, 'מחיקה מלאה של כל מה ש-MoneyCash שמר במחשב הזה. אי אפשר לבטל אותה.')),
+        h('p', { class: 'st-desc' }, 'מחיקה מלאה של כל מה ש-Finora שמר במחשב הזה. אי אפשר לבטל אותה.')),
       h('div', { class: 'st-main' }, btn));
   }
 
@@ -405,7 +406,7 @@ export function mountSettings(container, params) {
         const done = h('div', { class: 'state wipe-done', role: 'status' },
           h('h3', null, 'כל הנתונים נמחקו'),
           h('p', null, r?.restarting
-            ? (window.moneycash?.isDesktop ? 'MoneyCash נפתח מחדש כהתקנה חדשה.' : 'MoneyCash מופעל מחדש ויפתח לשונית חדשה. אפשר לסגור את הלשונית הזו.')
+            ? (window.finora?.isDesktop ? 'Finora נפתח מחדש כהתקנה חדשה.' : 'Finora מופעל מחדש ויפתח לשונית חדשה. אפשר לסגור את הלשונית הזו.')
             : 'אפשר לסגור את התוכנה. בפתיחה הבאה היא תתחיל כהתקנה חדשה.'));
         body.replaceChildren(done);
         dlg.el.querySelector('.dlg-foot')?.replaceChildren();

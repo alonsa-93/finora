@@ -7,7 +7,7 @@
 //   login in a visible window instead;
 // - visible ("interactive") login: the user types the code into the site's own page; we only wait,
 //   up to CODE_WAIT_MS, until the page reaches one of the scraper's known login-result URLs.
-// The code itself never passes through MoneyCash.
+// The code itself never passes through Finora.
 
 export const CODE_WAIT_MS = 5 * 60 * 1000;
 

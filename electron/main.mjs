@@ -1,4 +1,4 @@
-// MoneyCash desktop shell (Electron). Runs the existing server in-process on 127.0.0.1
+// Finora desktop shell (Electron). Runs the existing server in-process on 127.0.0.1
 // (port 4580, or a free port if taken) and shows the dashboard in one frameless, hardened window.
 // Each bank sync runs in a short-lived utility process (server/sync-worker.js).
 import './guard.mjs'; // MUST stay the first import: exits on NODE_OPTIONS / RUN_AS_NODE / --inspect
@@ -11,6 +11,7 @@ import { join, dirname, resolve, isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomBytes } from 'node:crypto';
 import { devModeAllowed } from '../server/devmode.js';
+import { defaultDataDir } from '../server/config.js';
 import { isCopyableAmount } from './clipboard-rule.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -26,14 +27,14 @@ process.on('unhandledRejection', logCrash('unhandledRejection'));
 
 const ASSETS = join(here, 'assets');
 const startHidden = process.argv.includes('--hidden');
-const fatal = (msg) => { dialog.showErrorBox('MoneyCash', msg); app.exit(1); process.exit(1); };
+const fatal = (msg) => { dialog.showErrorBox('Finora', msg); app.exit(1); process.exit(1); };
 
 // ---- start-up guards ---------------------------------------------------------------------------
 // Developer mode only from an unpackaged SOURCE CHECKOUT and an explicit opt-in (`npm run dev`).
 // The local install runs the stock electron.exe (isPackaged is false there too), so the checkout is
 // recognised on disk instead (server/devmode.js: install marker, %LOCALAPPDATA%\Programs, .git).
 const DEV = !app.isPackaged
-  && devModeAllowed(process.env.MONEYCASH_DEV === '1' || process.argv.includes('--dev'), join(here, '..'));
+  && devModeAllowed(process.env.FINORA_DEV === '1' || process.argv.includes('--dev'), join(here, '..'));
 
 // Debugging switches would hand the window (and its auth cookie) or the main process to any local
 // process. Chromium switches are not covered by the fuses, so refuse them in every mode.
@@ -49,7 +50,7 @@ const badNodeOptions = String(process.env.NODE_OPTIONS || '').trim() !== ''; // 
 if (badSwitch || badNodeOptions || process.env.ELECTRON_RUN_AS_NODE) {
   // Exit at once, without a dialog: Chromium may already have opened the debugging endpoint, and a
   // modal dialog would keep it alive. Nothing has been loaded yet (no window, no cookie, no data).
-  process.stderr.write('MoneyCash: refusing to start with debugging switches.\n');
+  process.stderr.write('Finora: refusing to start with debugging switches.\n');
   app.exit(1);
   process.exit(1);
 }
@@ -66,22 +67,22 @@ const underOneDrive = (p) => ['OneDrive', 'OneDriveConsumer', 'OneDriveCommercia
 // The code that handles bank credentials must not run from a cloud-synced (writable-from-elsewhere)
 // folder: anything that can write to OneDrive could change it.
 if (!DEV && underOneDrive(app.getAppPath())) {
-  fatal('MoneyCash לא יפעל מתוך תיקייה שמסונכרנת ל-OneDrive, כי כל מי שיכול לשנות קבצים ב-OneDrive '
+  fatal('Finora לא יפעל מתוך תיקייה שמסונכרנת ל-OneDrive, כי כל מי שיכול לשנות קבצים ב-OneDrive '
     + 'היה יכול לשנות גם את הקוד שמטפל בפרטי הבנק.\n\nהתקן את האפליקציה מקומית (scripts\\install-local.ps1) '
-    + 'והפעל אותה מקיצור הדרך MoneyCash.');
+    + 'והפעל אותה מקיצור הדרך Finora.');
 }
 
 // Developer-only environment switches.
 if (!DEV) {
-  delete process.env.MONEYCASH_DATA_DIR;
-  delete process.env.MONEYCASH_SMOKE_TEST;
+  delete process.env.FINORA_DATA_DIR;
+  delete process.env.FINORA_SMOKE_TEST;
 }
 
 // Keep Electron's own profile next to the app data (out of OneDrive, out of Roaming).
-const DATA_DIR = process.env.MONEYCASH_DATA_DIR
-  || join(process.env.LOCALAPPDATA || app.getPath('appData'), 'MoneyCash');
-if (process.env.MONEYCASH_DATA_DIR && (!isAbsolute(DATA_DIR) || DATA_DIR.startsWith('\\\\') || underOneDrive(DATA_DIR))) {
-  fatal('MONEYCASH_DATA_DIR חייב להיות נתיב מקומי מלא שאינו ב-OneDrive.');
+const DATA_DIR = process.env.FINORA_DATA_DIR
+  || defaultDataDir(process.env.LOCALAPPDATA || app.getPath('appData'));
+if (process.env.FINORA_DATA_DIR && (!isAbsolute(DATA_DIR) || DATA_DIR.startsWith('\\\\') || underOneDrive(DATA_DIR))) {
+  fatal('FINORA_DATA_DIR חייב להיות נתיב מקומי מלא שאינו ב-OneDrive.');
 }
 mkdirSync(DATA_DIR, { recursive: true });
 const ELECTRON_DIR = join(DATA_DIR, 'electron');
@@ -92,7 +93,7 @@ if (existsSync(join(DATA_DIR, 'wipe-pending'))) {
 }
 app.setPath('userData', ELECTRON_DIR);
 app.setPath('crashDumps', join(ELECTRON_DIR, 'Crashpad'));
-app.setAppUserModelId('com.moneycash.app');
+app.setAppUserModelId('com.finora.app');
 // puppeteer & co. must never resolve config files relative to where we were started from.
 try { process.chdir(DATA_DIR); } catch { /* keep cwd */ }
 
@@ -118,7 +119,7 @@ function loginItemArgs() {
   return app.isPackaged ? ['--hidden'] : [app.getAppPath(), '--hidden'];
 }
 // Distinct registry value names so the dev build never overwrites/removes the installed app's entry.
-const LOGIN_ITEM_NAME = DEV ? 'MoneyCash-dev' : 'MoneyCash';
+const LOGIN_ITEM_NAME = DEV ? 'Finora-dev' : 'Finora';
 function getOpenAtLogin() {
   return app.getLoginItemSettings({ args: loginItemArgs(), name: LOGIN_ITEM_NAME }).openAtLogin;
 }
@@ -172,7 +173,7 @@ function createWindow() {
     frame: false,
     show: false,
     backgroundColor: bg(),
-    title: 'MoneyCash',
+    title: 'Finora',
     icon: join(ASSETS, 'icon.ico'),
     autoHideMenuBar: true,
     webPreferences: {
@@ -210,7 +211,7 @@ function createWindow() {
       e.preventDefault();
       win.hide();
       if (!desktop.trayHintShown && tray) {
-        tray.displayBalloon({ title: 'MoneyCash ממשיך לפעול', content: 'האפליקציה במגש המערכת כדי שהסנכרון היומי ימשיך. לסגירה מלאה: לחיצה ימנית על הסמל ← יציאה.', iconType: 'info' });
+        tray.displayBalloon({ title: 'Finora ממשיך לפעול', content: 'האפליקציה במגש המערכת כדי שהסנכרון היומי ימשיך. לסגירה מלאה: לחיצה ימנית על הסמל ← יציאה.', iconType: 'info' });
         desktop.trayHintShown = true;
         saveDesktop();
       }
@@ -263,7 +264,7 @@ function createTray() {
   const img = nativeImage.createFromPath(join(ASSETS, 'tray.png'));
   img.addRepresentation({ scaleFactor: 2, buffer: readFileSync(join(ASSETS, 'tray@2x.png')) });
   tray = new Tray(img);
-  tray.setToolTip('MoneyCash');
+  tray.setToolTip('Finora');
   tray.on('click', showWindow);
   tray.on('double-click', showWindow);
   tray.on('right-click', () => tray.popUpContextMenu(buildTrayMenu()));
@@ -290,7 +291,7 @@ function hardenSession(origin) {
 function registerIpc() {
   ipcMain.on('mc:app-info', (event) => {
     if (!fromOurWindow(event)) { event.returnValue = {}; return; }
-    // apiToken: the second factor every /api call sends in X-MoneyCash (server/config.js). Our window
+    // apiToken: the second factor every /api call sends in X-Finora (server/config.js). Our window
     // gets it here, in memory, as browser mode gets it from POST /api/session.
     event.returnValue = { version: app.getVersion(), platform: process.platform, apiToken: apiToken || '' };
   });
@@ -332,7 +333,7 @@ async function finishWipe() {
     await ses.clearAuthCache();
     await ses.clearHostResolverCache();
   } catch { /* the folder itself is removed on the next start (wipe-pending marker) */ }
-  const keepHidden = DEV && process.env.MONEYCASH_SMOKE_TEST; // dev smoke check: no window pop-up
+  const keepHidden = DEV && process.env.FINORA_SMOKE_TEST; // dev smoke check: no window pop-up
   // Unpackaged, argv[1] is the app path, possibly relative ('.'): we chdir'd to DATA_DIR, so pass it absolute.
   const flags = process.argv.slice(1).filter((a) => a.startsWith('--') && (keepHidden || a !== '--hidden'));
   app.relaunch({ args: app.isPackaged ? flags : [app.getAppPath(), ...flags] });
@@ -344,7 +345,7 @@ async function utilityAdapterFactory() {
   const { WORKER_PATH, workerEnv } = await import('../server/sync-runner.js');
   return () => {
     const child = utilityProcess.fork(WORKER_PATH, [], {
-      serviceName: 'MoneyCash sync', stdio: 'ignore', env: workerEnv(), cwd: DATA_DIR,
+      serviceName: 'Finora sync', stdio: 'ignore', env: workerEnv(), cwd: DATA_DIR,
     });
     return {
       post: (m) => child.postMessage(m),
@@ -374,7 +375,7 @@ nativeTheme.on('updated', () => { if (win) win.setBackgroundColor(bg()); });
 
 async function askStartOver(message) {
   const r = await dialog.showMessageBox({
-    type: 'warning', title: 'MoneyCash', message: 'לא ניתן לפתוח את הנתונים', detail: message,
+    type: 'warning', title: 'Finora', message: 'לא ניתן לפתוח את הנתונים', detail: message,
     buttons: ['התחל מחדש (מחק את הנתונים הישנים)', 'יציאה'], defaultId: 1, cancelId: 1, noLink: true,
   });
   return r.response === 0;
@@ -382,7 +383,7 @@ async function askStartOver(message) {
 
 app.whenReady().then(async () => {
   Menu.setApplicationMenu(null);
-  process.env.MONEYCASH_DATA_DIR = DATA_DIR;
+  process.env.FINORA_DATA_DIR = DATA_DIR;
   const keys = await import('../server/keys.js');
   keys.setSafeStorage(safeStorage); // DPAPI-backed, in-process key wrapping
   const { startServer } = await import('../server/main.js');
@@ -412,14 +413,14 @@ app.whenReady().then(async () => {
       app.exit(1);
       return;
     }
-    dialog.showErrorBox('MoneyCash', `לא ניתן להפעיל את השרת המקומי (${e.code || e.name}).`);
+    dialog.showErrorBox('Finora', `לא ניתן להפעיל את השרת המקומי (${e.code || e.name}).`);
     app.exit(1);
     return;
   }
   hardenSession(new URL(server.url).origin);
   registerIpc();
   createTray();
-  const smoke = DEV ? process.env.MONEYCASH_SMOKE_TEST : undefined;
+  const smoke = DEV ? process.env.FINORA_SMOKE_TEST : undefined;
   if (smoke) {
     // Dev-only build check: report what the window loaded, then quit.
     const note = (s) => { try { writeFileSync(smoke, `${s}\n`, { flag: 'a' }); } catch { /* ignore */ } };
@@ -429,15 +430,15 @@ app.whenReady().then(async () => {
       w.webContents.on('preload-error', (_ev, p, err) => note(`preload-error ${err?.message}`));
       w.webContents.once('did-finish-load', async () => {
         try {
-          note(`page=${await w.webContents.executeJavaScript('document.title + " | moneycash=" + typeof window.moneycash + " | version=" + (window.moneycash && window.moneycash.version) + " | require=" + typeof require')}`);
-          note(`status=${await w.webContents.executeJavaScript('fetch("/api/status", { headers: { "X-MoneyCash": window.moneycash.apiToken } }).then(r => r.json()).then(j => JSON.stringify(j))')}`);
+          note(`page=${await w.webContents.executeJavaScript('document.title + " | finora=" + typeof window.finora + " | version=" + (window.finora && window.finora.version) + " | require=" + typeof require')}`);
+          note(`status=${await w.webContents.executeJavaScript('fetch("/api/status", { headers: { "X-Finora": window.finora.apiToken } }).then(r => r.json()).then(j => JSON.stringify(j))')}`);
           note(`external=${await w.webContents.executeJavaScript('fetch("https://example.com").then(() => "LOADED").catch(() => "blocked")')}`);
-          note(`maximized=${await w.webContents.executeJavaScript('window.moneycash.window.isMaximized()')}`);
+          note(`maximized=${await w.webContents.executeJavaScript('window.finora.window.isMaximized()')}`);
           let already = '';
           try { already = readFileSync(smoke, 'utf8'); } catch { /* none */ }
-          if (process.env.MONEYCASH_SMOKE_WIPE === '1' && !already.includes('wipe=')) {
+          if (process.env.FINORA_SMOKE_WIPE === '1' && !already.includes('wipe=')) {
             // Dev-only check of the full "delete all data" flow (wipe -> clear storage -> relaunch).
-            note(`wipe=${await w.webContents.executeJavaScript('fetch("/api/wipe", { method: "POST", headers: { "Content-Type": "application/json", "X-MoneyCash": window.moneycash.apiToken }, body: JSON.stringify({ confirm: "מחק" }) }).then(r => r.status + " " + JSON.stringify(Object.keys(localStorage)))')}`);
+            note(`wipe=${await w.webContents.executeJavaScript('fetch("/api/wipe", { method: "POST", headers: { "Content-Type": "application/json", "X-Finora": window.finora.apiToken }, body: JSON.stringify({ confirm: "מחק" }) }).then(r => r.status + " " + JSON.stringify(Object.keys(localStorage)))')}`);
             return; // finishWipe() relaunches
           }
         } catch (e) { note(`error ${e.message}`); }

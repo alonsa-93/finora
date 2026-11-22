@@ -50,7 +50,7 @@ export function setAutoSync(a) {
   setSetting(realDb(), 'autoSync', { enabled: !!a.enabled, time: a.time });
 }
 
-/** "Sync as soon as MoneyCash opens" (default on). See opensync.js. */
+/** "Sync as soon as Finora opens" (default on). See opensync.js. */
 export function getSyncOnOpen() {
   const v = getSetting(realDb(), 'syncOnOpen', null);
   return typeof v === 'boolean' ? v : true;

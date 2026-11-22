@@ -67,7 +67,7 @@ const fmtWeekday = new Intl.DateTimeFormat('he-IL', { weekday: 'long' });
 const fmtMonthYear = new Intl.DateTimeFormat('he-IL', { month: 'long', year: 'numeric' });
 const fmtMonthShort = new Intl.DateTimeFormat('he-IL', { month: 'short' });
 
-/** Time-of-day greeting. No name: MoneyCash does not know it. */
+/** Time-of-day greeting. No name: Finora does not know it. */
 function greeting(d = new Date()) {
   const hr = d.getHours();
   if (hr >= 5 && hr < 12) return 'בוקר טוב';

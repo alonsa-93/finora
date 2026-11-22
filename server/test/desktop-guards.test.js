@@ -19,7 +19,7 @@ test('dev mode only from a source checkout, never from the local install', async
   assert.equal(devModeAllowed(true, checkout, { env: {} }), true);
   assert.equal(devModeAllowed(false, checkout, { env: {} }), false, 'still needs the opt-in');
   // the install: marker, or anywhere under %LOCALAPPDATA%\Programs
-  const install = join(base, 'Programs', 'MoneyCash', 'app');
+  const install = join(base, 'Programs', 'Finora', 'app');
   mkdirSync(join(install, '.git'), { recursive: true });
   assert.equal(devModeAllowed(true, install, { env: { LOCALAPPDATA: base } }), false, 'under Programs');
   const marked = join(base, 'elsewhere');

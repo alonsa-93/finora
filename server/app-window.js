@@ -1,7 +1,7 @@
 // Lifecycle of the --app-window desktop mode (Node.js server + Microsoft Edge app window).
 //
 // It behaves like the Electron app did:
-//  - one MoneyCash at a time: a second launch does not kill the running one (that cut syncs short
+//  - one Finora at a time: a second launch does not kill the running one (that cut syncs short
 //    and left a logged-in scrape Chrome behind); it asks it to open a window and exits;
 //  - closing the window does not stop a sync that is running: the server finishes it in the
 //    background, then exits;
@@ -12,7 +12,7 @@ import { existsSync, openSync, closeSync, writeFileSync, unlinkSync, readdirSync
 import { join } from 'node:path';
 
 /**
- * True when a process command line is this MoneyCash's own --app-window server (node.exe running
+ * True when a process command line is this Finora's own --app-window server (node.exe running
  * our server\index.js). The pid in run\app-window.json can outlive a crash and be reused by any
  * other node.exe; only a match may be killed.
  */

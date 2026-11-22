@@ -8,7 +8,7 @@ import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-process.env.MONEYCASH_DATA_DIR ||= mkdtempSync(join(tmpdir(), 'mc-stab-'));
+process.env.FINORA_DATA_DIR ||= mkdtempSync(join(tmpdir(), 'mc-stab-'));
 const { syncedSinceToday } = await import('../main.js');
 const { firstLineTime } = await import('../log.js');
 const here = dirname(fileURLToPath(import.meta.url));
@@ -31,7 +31,7 @@ test('daily sync is skipped when every connection synced after today\'s time', (
 });
 
 test('log age comes from the first line, not the file creation time', () => {
-  const f = join(mkdtempSync(join(tmpdir(), 'mc-log-')), 'moneycash.log');
+  const f = join(mkdtempSync(join(tmpdir(), 'mc-log-')), 'finora.log');
   writeFileSync(f, '2026-11-19T10:00:00.000Z INFO x\n2026-11-20T10:00:00.000Z INFO y\n');
   assert.equal(firstLineTime(f, 0), Date.parse('2026-11-19T10:00:00.000Z'));
   writeFileSync(f, 'garbage');

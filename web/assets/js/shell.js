@@ -5,7 +5,7 @@ import { state, on } from './store.js';
 import { getPref, setPref } from './prefs.js';
 import { relativeTime } from './format.js';
 
-const desk = window.moneycash && window.moneycash.isDesktop ? window.moneycash : null;
+const desk = window.finora && window.finora.isDesktop ? window.finora : null;
 const isMac = /Mac/.test(navigator.platform);
 export const MOD = isMac ? '⌘' : 'Ctrl';
 
@@ -74,7 +74,7 @@ function titlebar({ onCommand, onSync, onDemo, onLens }) {
     els.lens.querySelector(`[data-lens="${next}"]`)?.focus();
   });
   const bar = h('header', { class: 'titlebar' },
-    h('div', { class: 'tb-brand' }, appMark(), h('b', null, 'MoneyCash')),
+    h('div', { class: 'tb-brand' }, appMark(), h('b', null, 'Finora')),
     els.where,
     els.lens,
     h('div', { class: 'tb-drag' }),
@@ -110,7 +110,7 @@ export function setWhere(section, detail) {
     h('span', { class: 'sep', 'aria-hidden': 'true' }, '/'),
     h('span', { class: 'cur' }, sec ? sec.label : ''),
     detail ? [h('span', { class: 'sep', 'aria-hidden': 'true' }, '·'), h('span', null, detail)] : null);
-  document.title = `${sec ? sec.label : ''}${detail ? ` · ${detail}` : ''} · MoneyCash`;
+  document.title = `${sec ? sec.label : ''}${detail ? ` · ${detail}` : ''} · Finora`;
 }
 
 export function renderStatusChrome() {
