@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: ['24.x', '26.x']
+        node: ['26.x']
     env:
       ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
     steps:

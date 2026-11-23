@@ -24,7 +24,7 @@ $node = Join-Path $env:ProgramFiles 'nodejs\node.exe'
 if (-not (Test-Path $node)) { throw 'Node.js is not installed in Program Files.' }
 if ((Get-AuthenticodeSignature $node).Status -ne 'Valid') { throw "$node is not validly signed." }
 $nodeVersion = (& $node --version).Trim()
-if ([int]($nodeVersion.TrimStart('v').Split('.')[0]) -lt 24) { throw "Node.js $nodeVersion is too old (24 or newer)." }
+if ([int]($nodeVersion.TrimStart('v').Split('.')[0]) -lt 26) { throw "Node.js $nodeVersion is too old (26 or newer)." }
 
 $setup = Join-Path $Out "Finora-$version-setup"
 $portable = Join-Path $Out "Finora-$version-portable"

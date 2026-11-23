@@ -65,7 +65,7 @@ Your banks and credit cards in one dashboard. Local-only, encrypted, read-only.
 ---
 
 ## ⚡ Quick start (try it with demo data)
-Requirements: Windows 10 or 11 and [Node.js](https://nodejs.org) 24 or newer.
+Requirements: Windows 10 or 11 and [Node.js](https://nodejs.org) 26 or newer.
 
 ```powershell
 git clone https://github.com/alonsa-93/finora.git

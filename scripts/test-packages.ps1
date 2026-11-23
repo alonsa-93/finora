@@ -112,7 +112,7 @@ try {
     $nodeExe = Join-Path $pkg.base 'node\node.exe'
     Check "$($pkg.n): Node.js is validly signed" ((Get-AuthenticodeSignature $nodeExe).Status -eq 'Valid')
     $nv = (& $nodeExe --version).Trim()
-    Check "$($pkg.n): Node.js $nv is 24 or newer" ([int]$nv.TrimStart('v').Split('.')[0] -ge 24)
+    Check "$($pkg.n): Node.js $nv is 26 or newer" ([int]$nv.TrimStart('v').Split('.')[0] -ge 26)
 
     # Every tracked source file (no tests, no .md) is there, byte for byte; nothing untracked is.
     $app = Join-Path $pkg.base 'app'
