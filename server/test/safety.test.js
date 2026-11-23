@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { backupOnVersionChange, hasUserData, listBackups, agentSandboxReason, BACKUP_DIR, VERSION_FILE } from '../safety.js';
+import { backupOnVersionChange, hasUserData, listBackups, agentSandboxReason, agentSandboxMessage, BACKUP_DIR, VERSION_FILE } from '../safety.js';
 import { defaultDataDir } from '../config.js';
 
 const scratch = () => mkdtempSync(join(tmpdir(), 'finora-safety-'));
@@ -105,13 +105,15 @@ test('sandbox: the real app refuses to start from an AI coding tool', () => {
   assert.equal(agentSandboxReason({ CLAUDECODE: '1' }), 'Claude Code');
   assert.equal(agentSandboxReason({ CLAUDE_CODE_ENTRYPOINT: 'claude-desktop' }), 'Claude Code');
   assert.equal(agentSandboxReason({}), '');
+  assert.match(agentSandboxMessage({ CLAUDECODE: '1' }), /Claude Code/);
+  assert.equal(agentSandboxMessage({}), '');
 });
 
 test('sandbox: both entry points check it before touching the data folder', () => {
   const here = new URL('..', import.meta.url);
   const idx = readFileSync(new URL('index.js', here), 'utf8');
-  assert.ok(idx.indexOf('agentSandboxReason()') < idx.indexOf("import('./config.js')"), 'index.js: before config/dataDir');
+  assert.ok(idx.indexOf('agentSandboxMessage()') < idx.indexOf("import('./config.js')"), 'index.js: before config/dataDir');
   const main = readFileSync(new URL('../electron/main.mjs', here), 'utf8');
-  assert.ok(main.indexOf('agentSandboxReason()') > 0 && main.indexOf('agentSandboxReason()') < main.indexOf('defaultDataDir('),
+  assert.ok(main.indexOf('agentSandboxMessage()') > 0 && main.indexOf('agentSandboxMessage()') < main.indexOf('defaultDataDir('),
     'main.mjs: before the data folder is chosen');
 });

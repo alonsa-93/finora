@@ -3,7 +3,7 @@
 import { readFileSync, mkdirSync, existsSync, renameSync } from 'node:fs';
 import { join, dirname, resolve, isAbsolute } from 'node:path';
 import { protectDir } from './acl.js';
-import { hasUserData } from './safety.js';
+import { hasUserData, fileStamp } from './safety.js';
 import { fileURLToPath } from 'node:url';
 import { homedir } from 'node:os';
 import { randomBytes } from 'node:crypto';
@@ -92,7 +92,7 @@ export function defaultDataDir(localAppData, { now = new Date() } = {}) {
   const dir = join(localAppData, 'Finora');
   const legacy = join(localAppData, 'MoneyCash');
   if (existsSync(dir) && existsSync(legacy) && !hasUserData(dir) && hasUserData(legacy)) {
-    try { renameSync(dir, join(localAppData, `Finora-empty-${now.toISOString().replace(/[:.]/g, '-')}`)); } catch { return legacy; }
+    try { renameSync(dir, join(localAppData, `Finora-empty-${fileStamp(now)}`)); } catch { return legacy; }
   }
   if (!existsSync(dir) && existsSync(legacy)) {
     try { renameSync(legacy, dir); } catch { return legacy; }
@@ -100,10 +100,19 @@ export function defaultDataDir(localAppData, { now = new Date() } = {}) {
   return dir;
 }
 
+// The default folder is chosen once per run (and per %LOCALAPPDATA%): the rename and set-aside steps
+// in defaultDataDir are a startup migration, not something to re-check on every dataDir() call.
+let defaultCache = { root: null, dir: null };
+function cachedDefaultDataDir() {
+  const root = process.env.LOCALAPPDATA || join(homedir(), 'AppData', 'Local');
+  if (defaultCache.root !== root) defaultCache = { root, dir: defaultDataDir(root) };
+  return defaultCache.dir;
+}
+
 let dataDirCache = null;
 export function dataDir() {
   const override = process.env.FINORA_DATA_DIR;
-  const base = override || defaultDataDir(process.env.LOCALAPPDATA || join(homedir(), 'AppData', 'Local'));
+  const base = override || cachedDefaultDataDir();
   if (dataDirCache === base) return base;
   if (override) {
     const problem = checkDataDirOverride(override);

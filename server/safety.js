@@ -8,7 +8,7 @@
 //   1. backupOnVersionChange: the first start of a new version copies those files to
 //      <data>\backups\<time>-<from>-to-<to> before anything else touches them (newest 5 kept).
 //   2. hasUserData (used by config.defaultDataDir): an empty folder never wins over one with data.
-//   3. agentSandboxReason: the real app does not start from inside an AI coding tool. The Claude
+//   3. agentSandboxMessage: the real app does not start from inside an AI coding tool. The Claude
 //      desktop app is an MSIX package: whatever it launches writes %LOCALAPPDATA% into its own
 //      private copy, so the real data would end up where the user's own launch never looks.
 //
@@ -20,6 +20,9 @@ export const BACKUP_DIR = 'backups';
 export const VERSION_FILE = 'version.json';
 export const BACKUPS_KEPT = 5;
 
+/** A time stamp that is safe in a folder name and sorts by time. */
+export const fileStamp = (now = new Date()) => now.toISOString().replace(/[:.]/g, '-');
+
 /** Does this folder hold a user's data (a data key or an encrypted database)? */
 export function hasUserData(dir) {
   try {
@@ -29,12 +32,12 @@ export function hasUserData(dir) {
 }
 
 // Browser caches inside a bank profile: large, rebuilt by the browser, not part of the connection.
-const SKIP = /^(cache|code cache|gpucache|grshadercache|graphitedawncache|shadercache|dawncache|crashpad|browsermetrics|service worker|component_crx_cache|extensions_crx_cache)$/i;
+const SKIP = /^(cache|code cache|gpucache|grshadercache|graphitedawncache|shadercache|dawncache|crashpad|browsermetrics|service worker|component_crx_cache|extensions_crx_cache|optimizationguidepredictionmodels|optimization_guide_model_store|safe browsing)$/i;
 
 /** What a backup holds: the key, the databases, the settings and the bank profiles. */
 function backupEntries(dir) {
   return readdirSync(dir).filter((f) => f === 'keys' || f === 'profiles' || f === 'desktop.json'
-    || /^(real|demo)\.db\.enc(\.1)?$/.test(f) || /^(real|demo)\.db(-wal|-shm)?$/.test(f));
+    || /^(real|demo)\.db\.enc(\.1)?$/.test(f) || /^(real|demo)\.db(-wal|-shm|-journal)?$/.test(f));
 }
 
 const readVersion = (dir) => {
@@ -61,12 +64,11 @@ export function backupOnVersionChange(dir, version, { now = new Date(), keep = B
   if (from === to) return { backedUp: null, from, to };
   let target = null;
   if (hasUserData(dir)) {
-    const stamp = now.toISOString().replace(/[:.]/g, '-');
-    target = join(dir, BACKUP_DIR, `${stamp}-${from || 'earlier'}-to-${to}`.replace(/[^\w.-]/g, '_'));
+    target = join(dir, BACKUP_DIR, `${fileStamp(now)}-${from || 'earlier'}-to-${to}`.replace(/[^\w.-]/g, '_'));
     mkdirSync(target, { recursive: true });
     for (const name of backupEntries(dir)) {
       cpSync(join(dir, name), join(target, name), {
-        recursive: true, errorOnExist: false, force: true,
+        recursive: true,
         filter: (src) => !SKIP.test(src.split(/[\\/]/).pop()),
       });
     }
@@ -89,6 +91,12 @@ export function agentSandboxReason(env = process.env) {
   return '';
 }
 
-export const AGENT_SANDBOX_HE = 'Finora לא תפתח את הנתונים האמיתיים מתוך כלי AI לכתיבת קוד (%s): '
+const AGENT_SANDBOX_HE = 'Finora לא תפתח את הנתונים האמיתיים מתוך כלי AI לכתיבת קוד (%s): '
   + 'הכלי רץ בסביבה מבודדת, והחיבורים לבנק היו נשמרים במקום שבו הפעלה רגילה לא מוצאת אותם. '
   + 'פתח את Finora מתפריט התחל, או הפעל מצב פיתוח עם נתוני דמו (npm start -- --dev).';
+
+/** The message to stop with when started from an AI coding tool, or '' when not. */
+export function agentSandboxMessage(env = process.env) {
+  const reason = agentSandboxReason(env);
+  return reason ? AGENT_SANDBOX_HE.replace('%s', reason) : '';
+}

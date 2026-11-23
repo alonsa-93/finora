@@ -2,7 +2,7 @@
 import './harden-env.js'; // must stay the first import
 import { createApp } from './app.js';
 import {
-  HOST, DEFAULT_PORT, setPort, getPort, appUrl, dataDir, setAuthToken, allowNoAuthForTests, dataDirProtected,
+  HOST, DEFAULT_PORT, setPort, getPort, appUrl, dataDir, setAuthToken, allowNoAuthForTests, dataDirProtected, VERSION,
 } from './config.js';
 import { realDb, isDemoMode, activeDb, getAutoSync, realConnectionCount } from './state.js';
 import { getSetting, setSetting, closeAll } from './db.js';
@@ -15,7 +15,6 @@ import { log, securityEvent } from './log.js';
 import { loadScrapersMeta } from './companies.js';
 import { runOpenSync } from './opensync.js';
 import { backupOnVersionChange } from './safety.js';
-import { VERSION } from './config.js';
 
 const pad = (n) => String(n).padStart(2, '0');
 const localHHMM = (d = new Date()) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;

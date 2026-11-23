@@ -33,9 +33,10 @@ const wantDev = argv.includes('--dev') || process.env.FINORA_DEV === '1';
 const dev = devModeAllowed(wantDev, join(here, '..'));
 if (wantDev && !dev) process.stderr.write('Finora: developer mode is available only from the source folder; starting normally.\n');
 // Never the real data from inside an AI coding tool's sandbox (safety.js explains why).
-const { agentSandboxReason, AGENT_SANDBOX_HE } = await import('./safety.js');
-if (!dev && agentSandboxReason()) {
-  process.stderr.write(`${AGENT_SANDBOX_HE.replace('%s', agentSandboxReason())}\n`);
+const { agentSandboxMessage } = await import('./safety.js');
+const sandboxStop = dev ? '' : agentSandboxMessage();
+if (sandboxStop) {
+  process.stderr.write(`${sandboxStop}\n`);
   process.exit(1);
 }
 if (!dev) {

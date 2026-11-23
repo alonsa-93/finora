@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Finora {{VERSION}} - מדריך התקנה רגילה</title>
+<style>
+  :root { --bg: #f7f5f2; --card: #ffffff; --text: #1d1d1f; --muted: #5f5f66; --line: #e4e0da; --accent: #e8664f; --warn-bg: #fff4e5; --warn-line: #f0c27a; --ok-bg: #eef8f1; --ok-line: #9fd3ad; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #17171a; --card: #222226; --text: #f1f1f3; --muted: #a9a9b2; --line: #34343a; --accent: #ff8a73; --warn-bg: #3a2e1c; --warn-line: #8a6a33; --ok-bg: #1d3325; --ok-line: #3e7a52; } }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.65 "Segoe UI", Arial, sans-serif; }
+  main { max-width: 820px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 28px; margin: 0 0 4px; } h1 span { color: var(--accent); }
+  .sub { color: var(--muted); margin: 0 0 28px; }
+  h2 { font-size: 21px; margin: 36px 0 12px; padding-bottom: 6px; border-bottom: 2px solid var(--line); }
+  h3 { font-size: 17px; margin: 0 0 6px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; margin: 12px 0; }
+  .warn { background: var(--warn-bg); border-color: var(--warn-line); }
+  .ok { background: var(--ok-bg); border-color: var(--ok-line); }
+  ol, ul { padding-inline-start: 22px; margin: 6px 0; } li { margin: 4px 0; }
+  code, .path { font-family: Consolas, "Courier New", monospace; font-size: 14px; background: rgba(127,127,127,.14); padding: 1px 6px; border-radius: 5px; direction: ltr; unicode-bidi: isolate; }
+  .q { font-weight: 600; } .a { margin: 4px 0 0; }
+  details { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; margin: 10px 0; }
+  summary { cursor: pointer; font-weight: 600; }
+  details[open] summary { margin-bottom: 8px; }
+  footer { margin-top: 40px; color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+<main>
+<h1><span>Finora</span> {{VERSION}} - התקנה רגילה</h1>
+<p class="sub">כל הכסף שלך. תמונה אחת ברורה. מדריך התקנה, שימוש ופתרון תקלות.</p>
+
+<div class="card ok">
+  <h3>בקצרה</h3>
+  <ol>
+    <li>סוגרים את Finora אם היא פתוחה.</li>
+    <li>לוחצים פעמיים על <b>"התקנת Finora.cmd"</b> ומחכים להודעה "Finora הותקנה בהצלחה" (פחות מדקה).</li>
+    <li>פותחים את Finora מתפריט התחל: מקלידים <b>Finora</b> ולוחצים Enter.</li>
+    <li>בודקים שהחיבורים לבנקים ולכרטיסים מופיעים כרגיל.</li>
+  </ol>
+</div>
+
+<h2>מה יש בתיקייה</h2>
+<ul>
+  <li><b>"התקנת Finora.cmd"</b>: מתקין את Finora, או מעדכן התקנה קיימת לגרסה הזאת.</li>
+  <li><b>"הסרת Finora.cmd"</b>: מסיר את Finora מהמחשב. הנתונים נשארים.</li>
+  <li><b>"מדריך.html"</b>: המדריך הזה.</li>
+  <li><b>התיקייה files</b>: קובצי התוכנה. אין צורך לגעת בה.</li>
+</ul>
+
+<h2>התקנה, צעד אחר צעד</h2>
+<ol>
+  <li><b>סוגרים את Finora</b> אם היא פתוחה, וממתינים שסנכרון שרץ יסתיים. ההתקנה בודקת את זה ועוצרת אם Finora עדיין רצה.</li>
+  <li><b>לוחצים פעמיים</b> על "התקנת Finora.cmd". נפתח חלון שחור שמראה את ההתקדמות:
+    <ul>
+      <li>מעתיק את התוכנה ואת Node.js;</li>
+      <li>בודק כל אחד מכ-2,300 הקבצים מול טביעת האצבע (SHA-256) שלו. קובץ פגום עוצר את ההתקנה לפני שמשהו משתנה;</li>
+      <li>יוצר קיצור דרך בתפריט התחל (ובשולחן העבודה, אם הוא לא מסונכרן ל-OneDrive).</li>
+    </ul>
+  </li>
+  <li><b>בסוף מופיעה הודעה</b> "Finora הותקנה בהצלחה". לוחצים "אישור".</li>
+  <li><b>פותחים את Finora</b> מתפריט התחל. נפתח חלון של Finora (חלון של Microsoft Edge בלי שורת כתובת).</li>
+</ol>
+
+<h2>הנתונים והחיבורים שלך</h2>
+<div class="card">
+  <ul>
+    <li><b>מקום הנתונים:</b> <span class="path">%LOCALAPPDATA%\Finora</span>. שם שמורים החיבורים, פרטי ההתחברות המוצפנים, מפתח ההצפנה והתנועות.</li>
+    <li><b>התקנה, עדכון והסרה</b> לא נוגעים בתיקייה הזאת אף פעם.</li>
+    <li><b>גיבוי אוטומטי:</b> בפתיחה הראשונה של גרסה חדשה, Finora מעתיקה את החיבורים ל-<span class="path">%LOCALAPPDATA%\Finora\backups</span> לפני כל דבר אחר. נשמרים 5 הגיבויים האחרונים.</li>
+    <li><b>הצפנה:</b> הנתונים מוצפנים, ונפתחים רק במשתמש Windows הזה ובמחשב הזה.</li>
+  </ul>
+</div>
+<div class="card warn">
+  <b>אף פעם לא מוחקים</b> את התיקייה <span class="path">%LOCALAPPDATA%\Finora</span> או קבצים מתוכה, גם אם נראה שהחיבורים נעלמו. מחיקה שם היא סופית.
+</div>
+
+<h2>עדכון לגרסה חדשה</h2>
+<p>מקבלים תיקייה חדשה של "התקנה רגילה", סוגרים את Finora ולוחצים פעמיים על "התקנת Finora.cmd" שבה. אין צורך להסיר קודם. החיבורים נשארים, וגיבוי נעשה בפתיחה הראשונה.</p>
+
+<h2>הסרה</h2>
+<ol>
+  <li>סוגרים את Finora.</li>
+  <li>לוחצים פעמיים על "הסרת Finora.cmd" ומאשרים.</li>
+  <li>התוכנה וקיצורי הדרך נמחקים. הנתונים נשארים, כך שהתקנה מחדש ממשיכה מאותו מקום.</li>
+</ol>
+<p>אפשר להסיר גם בלי התיקייה הזאת: מריצים את <span class="path">uninstall.ps1</span> שבתוך <span class="path">%LOCALAPPDATA%\Programs\Finora</span>.</p>
+
+<h2>תקלות אפשריות ואיך פותרים</h2>
+
+<details open>
+  <summary>ההתקנה עוצרת: "Finora is running from the install folder"</summary>
+  <p><b>הסיבה:</b> Finora פתוחה, או שסנכרון עדיין רץ ברקע אחרי שסגרת את החלון.</p>
+  <p><b>הפתרון:</b> סוגרים את חלון Finora, ממתינים דקה-שתיים שהסנכרון יסתיים, ומריצים שוב את ההתקנה. אם זה חוזר, מפעילים מחדש את המחשב ומתקינים לפני שפותחים את Finora.</p>
+</details>
+
+<details>
+  <summary>Windows מציג "Windows protected your PC" / "Windows הגן על המחשב שלך"</summary>
+  <p><b>הסיבה:</b> התיקייה הגיעה מהאינטרנט (הורדה, מייל, וואטסאפ), ו-Windows מסמן קבצים כאלה.</p>
+  <p><b>הפתרון:</b> לוחצים "מידע נוסף" ואז "הפעל בכל זאת". או לפני ההתקנה: קליק ימני על הקובץ שהורד (או על קובץ ה-ZIP לפני החילוץ), "מאפיינים", מסמנים "בטל חסימה" ואישור.</p>
+</details>
+
+<details>
+  <summary>ההתקנה עוצרת: "file(s) did not copy correctly"</summary>
+  <p><b>הסיבה:</b> קובץ בתיקיית ההתקנה פגום או חסר. זה קורה בעיקר כשהתיקייה ב-OneDrive ועוד לא ירדה במלואה למחשב, או כשההעתקה נקטעה.</p>
+  <p><b>הפתרון:</b> קליק ימני על התיקייה "התקנה רגילה", "שמור תמיד במכשיר זה", ממתינים שהסנכרון של OneDrive יסתיים ומריצים שוב. אם זה חוזר, מעתיקים את התיקייה מחדש מהמקור. שום דבר לא השתנה במחשב כשההתקנה עוצרת כך.</p>
+</details>
+
+<details>
+  <summary>אחרי ההתקנה החיבורים לא מופיעים</summary>
+  <p><b>קודם כל:</b> לא מוחקים כלום ולא מתחברים מחדש לבנקים. החיבורים כמעט תמיד עדיין במחשב.</p>
+  <ol>
+    <li>מוודאים שפתחת את Finora <b>מתפריט התחל</b>, ולא מתוך כלי AI או מתוך תיקיית הפרויקט.</li>
+    <li>סוגרים את Finora, ממתינים דקה ופותחים שוב.</li>
+    <li>בודקים שהתיקייה <span class="path">%LOCALAPPDATA%\Finora</span> קיימת ויש בה <span class="path">keys</span> ו-<span class="path">real.db.enc</span> (מדביקים את הנתיב בשורת הכתובת של סייר הקבצים).</li>
+    <li>בתיקייה <span class="path">backups</span> שבתוכה יש עותק של החיבורים מכל עדכון. <b>אל תשחזר לבד</b>: פנה לעזרה ותן את רשימת התיקיות שם. שחזור לא נכון עלול לדרוס נתונים טובים.</li>
+  </ol>
+</details>
+
+<details>
+  <summary>לחצתי על Finora ושום חלון לא נפתח</summary>
+  <ul>
+    <li><b>ממתינים 10-20 שניות:</b> בפתיחה הראשונה אחרי עדכון Finora מגבה את החיבורים, וזה לוקח קצת זמן.</li>
+    <li><b>לוחצים שוב על הקיצור:</b> אם Finora כבר רצה ברקע, היא פותחת את החלון שלה.</li>
+    <li><b>Microsoft Edge:</b> החלון של Finora הוא חלון Edge. אם Edge הוסר מהמחשב, Finora נפתחת בדפדפן ברירת המחדל.</li>
+    <li><b>אם עדיין לא נפתח:</b> מפעילים מחדש את המחשב ופותחים שוב מתפריט התחל.</li>
+  </ul>
+</details>
+
+<details>
+  <summary>אין קיצור דרך בשולחן העבודה</summary>
+  <p><b>הסיבה:</b> שולחן העבודה מסונכרן ל-OneDrive, ו-Finora לא שמה בו קיצור (כדי שלא יסונכרן לענן). זה מכוון.</p>
+  <p><b>הפתרון:</b> פותחים מתפריט התחל. כדי לקבל גישה מהירה: בתפריט התחל, קליק ימני על Finora, "הצמד לשורת המשימות".</p>
+</details>
+
+<details>
+  <summary>Smart App Control חוסם משהו</summary>
+  <p>בגרסה הזאת אין אף קובץ exe לא חתום: Node.js חתום דיגיטלית, והחלון הוא Microsoft Edge. לכן Smart App Control לא אמור לחסום. אם בכל זאת מופיעה חסימה, כנראה הקבצים פגומים: מעתיקים את התיקייה מחדש ומתקינים שוב.</p>
+</details>
+
+<details>
+  <summary>הבנק מבקש קוד ב-SMS או מבקש להתחבר מחדש</summary>
+  <p>זה רגיל אצל חלק מהבנקים, במיוחד אחרי זמן ארוך בלי סנכרון. במסך החיבורים לוחצים "התחברות עם קוד" ומזינים את הקוד שהגיע. החיבור עצמו לא נמחק.</p>
+</details>
+
+<details>
+  <summary>Finora מסרבת להיפתח ומדברת על "כלי AI לכתיבת קוד"</summary>
+  <p>זו הגנה מכוונת: כשמפעילים את Finora מתוך כלי כמו Claude, הנתונים היו נשמרים במקום מבודד ו"נעלמים". פותחים את Finora מתפריט התחל, וזה עובד.</p>
+</details>
+
+<details>
+  <summary>ההסרה אומרת "Finora לא מותקנת במחשב הזה"</summary>
+  <p>Finora כבר הוסרה, או שהותקנה בתיקייה אחרת. אין מה לעשות. הנתונים, אם יש, נמצאים ב-<span class="path">%LOCALAPPDATA%\Finora</span>.</p>
+</details>
+
+<h2>דרישות</h2>
+<ul>
+  <li>Windows 10 או 11.</li>
+  <li>Microsoft Edge (מותקן בכל Windows).</li>
+  <li>Node.js {{NODE}}: כלול בחבילה, אין צורך להתקין.</li>
+  <li>כ-130MB פנויים בדיסק.</li>
+</ul>
+
+<footer>Finora {{VERSION}} · קוד פתוח (GPL-3.0) · הנתונים נשארים רק במחשב שלך</footer>
+</main>
+</body>
+</html>

@@ -14,6 +14,15 @@ Thanks for your interest in improving Finora.
 3. `npm start` runs the app in developer mode with demo data.
 4. `npm test` must pass before you open a pull request. Add a test for any bug you fix.
 
+## Release packages
+`npm run package -- <folder outside OneDrive>` builds the two Windows packages: a regular install
+(`Finora-<version>-setup`) and a portable folder (`Finora-<version>-portable`). Neither one has an
+unsigned .exe, so they run with Smart App Control on: the signed Node.js runs the server and the
+window is Microsoft Edge. Each package has a Hebrew guide (`docs/guide-*.he.html`). Before you
+hand a package out, run `scripts/test-packages.ps1 -Out <that folder> -Lab <empty folder>`: it
+installs, starts, upgrades and uninstalls both packages inside the lab folder (a Microsoft Edge
+window opens briefly) and must end with 0 failed.
+
 ## Ground rules
 - **Every change keeps the user's existing connections.** An upgrade, rename, refactor or reinstall
   must open the same data folder with the same key, databases and bank profiles, and the connections

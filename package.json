@@ -1,6 +1,6 @@
 {
   "name": "finora",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "private": true,
   "description": "Finora - All your money. One clear picture. A local-only personal finance dashboard for Israeli banks and credit cards",
   "author": "Finora",
@@ -21,7 +21,8 @@
     "test": "node --test \"server/test/*.test.js\"",
     "audit": "npm audit --omit=dev --audit-level=high && npm audit signatures",
     "sbom": "npm sbom --sbom-format cyclonedx --package-lock-only --omit=dev > dist/sbom.cdx.json",
-    "notices": "node scripts/notices.mjs"
+    "notices": "node scripts/notices.mjs",
+    "package": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/package.ps1 -Out"
   },
   "engines": {
     "node": ">=24"

@@ -11,7 +11,7 @@ import { join, dirname, resolve, isAbsolute } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomBytes } from 'node:crypto';
 import { devModeAllowed } from '../server/devmode.js';
-import { agentSandboxReason, AGENT_SANDBOX_HE } from '../server/safety.js';
+import { agentSandboxMessage } from '../server/safety.js';
 import { defaultDataDir } from '../server/config.js';
 import { isCopyableAmount } from './clipboard-rule.mjs';
 
@@ -74,7 +74,8 @@ if (!DEV && underOneDrive(app.getAppPath())) {
 }
 
 // Never the real data from inside an AI coding tool's sandbox (server/safety.js explains why).
-if (!DEV && agentSandboxReason()) fatal(AGENT_SANDBOX_HE.replace('%s', agentSandboxReason()));
+const sandboxStop = DEV ? '' : agentSandboxMessage();
+if (sandboxStop) fatal(sandboxStop);
 
 // Developer-only environment switches.
 if (!DEV) {
