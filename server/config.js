@@ -3,6 +3,7 @@
 import { readFileSync, mkdirSync, existsSync, renameSync } from 'node:fs';
 import { join, dirname, resolve, isAbsolute } from 'node:path';
 import { protectDir } from './acl.js';
+import { hasUserData } from './safety.js';
 import { fileURLToPath } from 'node:url';
 import { homedir } from 'node:os';
 import { randomBytes } from 'node:crypto';
@@ -84,10 +85,15 @@ export function checkDataDirOverride(p) {
  * Default data folder under %LOCALAPPDATA%. The app was called MoneyCash before 1.1: its folder is
  * moved to the new name once. If the move fails (e.g. an old copy still has files open), the old
  * folder keeps being used so no data is ever left behind; the move is retried on the next start.
+ * An empty Finora folder (made by a launch that did not find the data) never hides a MoneyCash
+ * folder that holds the user's data: it is set aside as Finora-empty-<time>, never deleted.
  */
-export function defaultDataDir(localAppData) {
+export function defaultDataDir(localAppData, { now = new Date() } = {}) {
   const dir = join(localAppData, 'Finora');
   const legacy = join(localAppData, 'MoneyCash');
+  if (existsSync(dir) && existsSync(legacy) && !hasUserData(dir) && hasUserData(legacy)) {
+    try { renameSync(dir, join(localAppData, `Finora-empty-${now.toISOString().replace(/[:.]/g, '-')}`)); } catch { return legacy; }
+  }
   if (!existsSync(dir) && existsSync(legacy)) {
     try { renameSync(legacy, dir); } catch { return legacy; }
   }

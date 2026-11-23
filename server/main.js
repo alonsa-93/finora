@@ -14,6 +14,8 @@ import { todayISO } from './dates.js';
 import { log, securityEvent } from './log.js';
 import { loadScrapersMeta } from './companies.js';
 import { runOpenSync } from './opensync.js';
+import { backupOnVersionChange } from './safety.js';
+import { VERSION } from './config.js';
 
 const pad = (n) => String(n).padStart(2, '0');
 const localHHMM = (d = new Date()) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
@@ -97,6 +99,13 @@ export async function startServer({
   const t0 = Date.now();
   dataDir(); // creates the folder and applies the protected DACL
   if (dataDirProtected() === false) securityEvent('acl_failed', 'data folder permissions could not be restricted', { rateKey: null });
+  // First start of a new version: copy the connections aside before anything reads or migrates them.
+  try {
+    const b = backupOnVersionChange(dataDir(), VERSION);
+    if (b.backedUp) log.info(`upgrade ${b.from || 'earlier'} -> ${b.to}: connections backed up to backups\\`);
+  } catch (e) {
+    log.warn(`upgrade backup failed (${e.code || e.name}); retried on the next start`);
+  }
   try { sweepScraperProfiles(); } catch { /* best effort */ }
   const tSweep = Date.now();
   realDb(); // unwraps the data key (throws code KEY_UNAVAILABLE if it cannot) and migrates legacy files

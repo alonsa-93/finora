@@ -15,6 +15,14 @@ Thanks for your interest in improving Finora.
 4. `npm test` must pass before you open a pull request. Add a test for any bug you fix.
 
 ## Ground rules
+- **Every change keeps the user's existing connections.** An upgrade, rename, refactor or reinstall
+  must open the same data folder with the same key, databases and bank profiles, and the connections
+  must still sync afterwards. Never delete, move or re-create files in the data folder without a
+  migration and a test that proves an existing folder survives it (see `server/safety.js` and
+  `server/test/safety.test.js`). The data key labels (`MoneyCash/v1` and friends) are frozen.
+- Never start the real app (without `--dev`) from an AI coding tool or any other sandbox: it can
+  write the data where the user's own launch never looks, and the connections seem to vanish. The
+  app refuses to start there; use `npm start -- --dev` with demo data.
 - Finora is read-only towards the banks. Changes that perform actions on an account will not be accepted.
 - Nothing may leave the user's computer except the sync with the banks and card companies themselves.
 - Never log credentials, IDs or full account numbers; `server/errors.js` scrubs them, keep it that way.

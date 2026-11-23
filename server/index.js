@@ -32,6 +32,12 @@ const here = dirname(fileURLToPath(import.meta.url));
 const wantDev = argv.includes('--dev') || process.env.FINORA_DEV === '1';
 const dev = devModeAllowed(wantDev, join(here, '..'));
 if (wantDev && !dev) process.stderr.write('Finora: developer mode is available only from the source folder; starting normally.\n');
+// Never the real data from inside an AI coding tool's sandbox (safety.js explains why).
+const { agentSandboxReason, AGENT_SANDBOX_HE } = await import('./safety.js');
+if (!dev && agentSandboxReason()) {
+  process.stderr.write(`${AGENT_SANDBOX_HE.replace('%s', agentSandboxReason())}\n`);
+  process.exit(1);
+}
 if (!dev) {
   delete process.env.FINORA_DATA_DIR;
   delete process.env.FINORA_SMOKE_TEST;
